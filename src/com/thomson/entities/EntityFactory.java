@@ -3,8 +3,7 @@ package com.thomson.entities;
 import com.thomson.annotations.Property;
 import com.thomson.entities.animals.herbivores.*;
 import com.thomson.entities.animals.predators.*;
-import com.thomson.entities.plants.Plant;
-
+import com.thomson.entities.plants.grass.Grass;
 
 import lombok.SneakyThrows;
 import org.reflections.Reflections;
@@ -61,6 +60,7 @@ public class EntityFactory {
             Double enoughAmountOfFood = Double.valueOf((String) properties.get(valuesToSearch.get(0)));
             String unicode = String.valueOf(properties.get(valuesToSearch.get(3)));
             entitiesMap.put(aClass, constructor.newInstance(weight, maxOnCage, speed, enoughAmountOfFood, unicode));
+//            System.out.println();
         }
 //        System.out.println(entitiesMap.toString()); // Удалить
     }
@@ -83,7 +83,7 @@ public class EntityFactory {
             case DUCK -> (Duck) entitiesMap.get(Duck.class);
             case CATERPILLAR -> (Caterpillar) entitiesMap.get(Caterpillar.class);
 
-//            case PLANT -> (Plant) entitiesMap.get(Plant.class);
+            case GRASS -> (Grass) entitiesMap.get(Grass.class);
         };
     }
 

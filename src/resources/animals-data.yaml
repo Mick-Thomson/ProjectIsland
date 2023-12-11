@@ -88,7 +88,7 @@ caterpillar:
   speed: 0
   enoughAmountOfFood: 0
   unicode: \uD83D\uDC1B
-plant:
+grass:
   weight: 1
   maxOnCage: 200
   unicode: \uD83C\uDF3F

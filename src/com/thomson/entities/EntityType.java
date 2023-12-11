@@ -20,8 +20,8 @@ public enum EntityType {
     BOAR("\uD83D\uDC17"),   // кабан
     BUFFALO("\uD83D\uDC03"),
     DUCK("\uD83E\uDD86"),
-    CATERPILLAR("\uD83D\uDC1B");    // гусеница
-//    PLANT("\uD83C\uDF3F");
+    CATERPILLAR("\uD83D\uDC1B"),    // гусеница
+    GRASS("\uD83C\uDF3F");
     private final String unicodeSymbol;
 
 }

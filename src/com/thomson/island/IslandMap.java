@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
+import java.util.Arrays;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
@@ -50,6 +52,7 @@ public class IslandMap {
             for (int coordinateX = 0; coordinateX < width; coordinateX++) {
                 for (int i = 0; i < maxEntityCount; i++) {
                     Entity entity = getRandomEntity();
+//                    System.out.println("Рандомное  животное: " + entity.getClass().getSimpleName() + " - " + entity);
 
                     var entityAsString = entity.getClass().getSimpleName();
                     var entityCountOnLocation = locations[coordinateY][coordinateX].getEntitiesCount().getOrDefault(entityAsString, 0);
@@ -57,6 +60,28 @@ public class IslandMap {
                         continue;
                     }
                     locations[coordinateY][coordinateX].addEntity(entity);
+                }
+            }
+        }
+    }
+
+    public void fillPlants(int maxEntityCount) {
+        for (int coordinateY = 0; coordinateY < height; coordinateY++) {
+            for (int coordinateX = 0; coordinateX < width; coordinateX++) {
+                for (int i = 0; i < maxEntityCount; i++) {
+                    Entity entity = getPlant();
+//                    System.out.println("Трава: " + entity.getClass().getSimpleName() + " - " + entity);
+
+                    var entityAsString = entity.getClass().getSimpleName();
+                    var entityCountOnLocation = locations[coordinateY][coordinateX].getEntitiesCount().getOrDefault(entityAsString, 0);
+                    if (entityCountOnLocation >= entity.getMaxOnCage()) {
+                        continue;
+                    }
+                    Random random = new Random();
+                    int grassGrowthProbability = random.nextInt(2);
+                    if (grassGrowthProbability == 1) {
+                        locations[coordinateY][coordinateX].addEntity(entity);
+                    }
                 }
             }
         }
@@ -71,7 +96,17 @@ public class IslandMap {
 
     private Entity getRandomEntity() {
         EntityType[] entityTypes = EntityType.values();
-        EntityType entityType = entityTypes[ThreadLocalRandom.current().nextInt(entityTypes.length)];
+//        System.out.println(Arrays.toString(entityTypes));
+        EntityType entityType = entityTypes[ThreadLocalRandom.current().nextInt(entityTypes.length - 1)];
+//        System.out.println("Выбрано рандомная сущность: " + entityType);
+        return entityFactory.createEntity(entityType);
+    }
+
+    private Entity getPlant() {
+        EntityType[] entityTypes = EntityType.values();
+//        System.out.println(Arrays.toString(entityTypes));
+        EntityType entityType = entityTypes[entityTypes.length - 1];
+//        System.out.println("Выбрана рандомная сущность: " + entityType);
         return entityFactory.createEntity(entityType);
     }
 

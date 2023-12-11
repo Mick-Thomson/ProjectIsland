@@ -33,8 +33,8 @@ public class UserDialog {
         try (Scanner scanner = new Scanner(System.in)) {
             System.out.println("Симулятор острова");
             System.out.println("Текущие настройки: ");
-            System.out.println("Height = " + simulationSettings.getHeightMap());
-            System.out.println("Width = " + simulationSettings.getWidthMap());
+//            System.out.println("Height = " + simulationSettings.getHeightMap());
+//            System.out.println("Width = " + simulationSettings.getWidthMap());
             // TODO: добавить возможность изменения параметров
         }
     }

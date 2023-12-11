@@ -23,7 +23,9 @@ public class SimulationSettings {
     /** Максимальное количество животных в локации (настраиваемое значение) */
     private int maxAnimalCount = 100;
     /** Максимальное количество животных в одной клетке (настраиваемое значение) */
-    private int maxEntityCountOnLocation = 100; // TODO Максимальное возможное количество животных в одной клетке
+    private int maxEntityCountOnLocation = 10; // TODO Максимальное возможное количество животных в одной клетке
+    /** Максимальное количество растений в одной клетке (настраиваемое значение) */
+    private int maxPlantCountOnLocation = 1;
     /** Параметр увеличения здоровья, % (настраиваемое значение) */
     private int increaseHealthScale = 30;
     /** Параметр уменьшения здоровья каждый такт, % (настраиваемое значение) */
@@ -35,9 +37,9 @@ public class SimulationSettings {
     /** Параметр частоты вывода статистики в консоль, мс */
     private int statPeriod = 100;
     /** Количество циклов симуляции (настраиваемое значение) */
-    private int simulationCycles = 100;
+    private int simulationCycles = 1;
 
     public static final String ENTER_WIDTH_MAP = "Ширина острова по-умолчанию";
 
-//    private String Path = "src/resources/eating-chance-data.yaml";
+    private String Path = "src/resources/eating-chance-data.yaml";
 }

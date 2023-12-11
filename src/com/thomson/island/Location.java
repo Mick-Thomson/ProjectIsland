@@ -67,4 +67,14 @@ public class Location {
     private String getEntityName(Entity entity) {
         return entity.getClass().getSimpleName();
     }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+                "coordinateX=" + coordinateX +
+                ", coordinateY=" + coordinateY +
+                ", entities=" + entities +
+                ", entitiesCount=" + entitiesCount +
+                '}';
+    }
 }

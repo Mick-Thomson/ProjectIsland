@@ -60,9 +60,12 @@ public abstract class Animal extends Entity {
     public Action chooseAction() {
         Action action = Action.values()[ThreadLocalRandom.current()
                 .nextInt(Action.values().length)];  // Если не будет многопоточки сменить на "new Random().nextInt(Direction.values().length)"
-        boolean isActiveAction = ThreadLocalRandom.current()
-                .nextInt(MAX_CHANCE) < action.getActionChanceIndex();  // Если не будет многопоточки сменить на "new Random().nextInt(Direction.values().length)"
-        return isActiveAction ? action : Action.SLEEP;
+        System.out.print("Выбранное действие - " + action + ", ");
+//        boolean isActiveAction = ThreadLocalRandom.current()
+//                .nextInt(MAX_CHANCE) < action.getActionChanceIndex();  // Если не будет многопоточки сменить на "new Random().nextInt(Direction.values().length)"
+//        System.out.println("Будет выполнено? - " + isActiveAction);
+//        return isActiveAction ? action : Action.SLEEP;
+        return action;
     }
 
     public Direction chooseDirection() {

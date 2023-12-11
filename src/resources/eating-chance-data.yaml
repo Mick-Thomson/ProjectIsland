@@ -14,7 +14,7 @@ eatableIndexes:
     Buffalo: 10
     Duck: 40
     Caterpillar: 0
-    Plant: 0
+    Grass: 0
   Boa:
     Wolf: 0
     Fox: 15
@@ -30,7 +30,7 @@ eatableIndexes:
     Buffalo: 0
     Duck: 10
     Caterpillar: 0
-    Plant: 0
+    Grass: 0
   Fox:
     Wolf: 0
     Boa: 0
@@ -46,7 +46,7 @@ eatableIndexes:
     Buffalo: 0
     Duck: 60
     Caterpillar: 40
-    Plant: 0
+    Grass: 0
   Bear:
     Wolf: 0
     Boa: 80
@@ -62,7 +62,7 @@ eatableIndexes:
     Buffalo: 20
     Duck: 10
     Caterpillar: 0
-    Plant: 0
+    Grass: 0
   Eagle:
     Wolf: 0
     Boa: 0
@@ -78,7 +78,7 @@ eatableIndexes:
     Buffalo: 0
     Duck: 80
     Caterpillar: 0
-    Plant: 0
+    Grass: 0
   Horse:
     Wolf: 0
     Boa: 0
@@ -94,7 +94,7 @@ eatableIndexes:
     Buffalo: 0
     Duck: 0
     Caterpillar: 0
-    Plant: 100
+    Grass: 100
   Deer:
     Wolf: 0
     Boa: 0
@@ -110,7 +110,7 @@ eatableIndexes:
     Buffalo: 0
     Duck: 0
     Caterpillar: 0
-    Plant: 100
+    Grass: 100
   Rabbit:
     Wolf: 0
     Boa: 0
@@ -126,7 +126,7 @@ eatableIndexes:
     Buffalo: 0
     Duck: 0
     Caterpillar: 0
-    Plant: 100
+    Grass: 100
   Mouse:
     Wolf: 0
     Boa: 0
@@ -142,7 +142,7 @@ eatableIndexes:
     Buffalo: 0
     Duck: 0
     Caterpillar: 90
-    Plant: 100
+    Grass: 100
   Goat:
     Wolf: 0
     Boa: 0
@@ -158,7 +158,7 @@ eatableIndexes:
     Buffalo: 0
     Duck: 0
     Caterpillar: 0
-    Plant: 100
+    Grass: 100
   Sheep:
     Wolf: 0
     Boa: 0
@@ -174,7 +174,7 @@ eatableIndexes:
     Buffalo: 0
     Duck: 0
     Caterpillar: 0
-    Plant: 100
+    Grass: 100
   Boar:
     Wolf: 0
     Boa: 0
@@ -190,7 +190,7 @@ eatableIndexes:
     Buffalo: 0
     Duck: 0
     Caterpillar: 90
-    Plant: 100
+    Grass: 100
   Buffalo:
     Wolf: 0
     Boa: 0
@@ -206,7 +206,7 @@ eatableIndexes:
     Boar: 0
     Duck: 0
     Caterpillar: 0
-    Plant: 100
+    Grass: 100
   Duck:
     Wolf: 0
     Boa: 0
@@ -222,7 +222,7 @@ eatableIndexes:
     Boar: 0
     Buffalo: 0
     Caterpillar: 90
-    Plant: 100
+    Grass: 100
   Caterpillar:
     Wolf: 0
     Boa: 0
@@ -238,4 +238,4 @@ eatableIndexes:
     Boar: 0
     Buffalo: 0
     Duck: 0
-    Plant: 100
+    Grass: 100

@@ -41,9 +41,16 @@ public class SimulationStarter {
         islandController.getMap().initialize();
         islandController.getMap().fill(simulationSettings.getMaxEntityCountOnLocation());
         islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
-
+        // Цикл 100 ходов по умолчанию
         for (int i = 0; i < simulationSettings.getSimulationCycles(); i++) {
-            // Цикл 100 ходов по умолчанию
+            // Прикрутить статистику на каждый день
+
+            // Здоровье начинает уменьшаться перед наступлением следующего дня
+            islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
+            if (i != 0) {
+                deteriorationOfHealth();
+            }
+
             for (int coordinateY = 0; coordinateY < islandMap.getHeight(); coordinateY++) {
                 for (int coordinateX = 0; coordinateX < islandMap.getWidth(); coordinateX++) {
                     Location location = islandMap.getLocations()[coordinateY][coordinateX];
@@ -75,6 +82,32 @@ public class SimulationStarter {
         }
     }
 
+    private void deteriorationOfHealth() {
+        for (int coordinateY = 0; coordinateY < islandMap.getHeight(); coordinateY++) {
+            for (int coordinateX = 0; coordinateX < islandMap.getWidth(); coordinateX++) {
+                Location location = islandMap.getLocations()[coordinateY][coordinateX];
+                List<Animal> animals = new ArrayList<>(location.getAnimals());
+
+                List<String> animalsAsString = animals.stream()
+                        .map(el -> el.getClass().getSimpleName())
+                        .toList();
+                System.out.println("Животные в локации:" + animalsAsString);
+
+                for (Animal animal : animals) {     // Цикл по животным на локации
+                    System.out.print("Выбранное животное: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " ");
+                    if (isDead(animal)) {
+                        System.out.println("Мертво");
+                        location.removeEntity(animal);
+                        continue;
+                    }
+                    double previousHealthScale = animal.getHealthScale();
+                    reduceHealth(animal);
+                    System.out.println("Уровень жизни животного: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " изменился с " + previousHealthScale + " на " + animal.getHealthScale());
+                }
+            }
+        }
+    }
+
     /**
      * ... Метод выполняет одно из действий для животного с последующим изменением уровня здоровья
      * @param action ...
@@ -89,9 +122,9 @@ public class SimulationStarter {
             case REPRODUCE -> doReproduce(animal, location);
             case SLEEP -> doSleep(animal);
         }
-        System.out.print("Уровень здоровья животного " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " - " + animal.getHealthScale() + " | ");
-        reduceHealth(animal);
-        System.out.println(animal.getHealthScale());
+//        System.out.print("Уровень здоровья животного " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " - " + animal.getHealthScale() + " | ");
+//        reduceHealth(animal);
+//        System.out.println(animal.getHealthScale());
     }
 
     /**

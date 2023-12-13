@@ -11,6 +11,6 @@ public class Caterpillar extends Herbivores {
 
     @Override
     public Animal reproduce() {
-        return new Caterpillar(0.01, 1000, 0, 0d, "\\uD83D\\uDC1B");
+        return new Caterpillar(0.01, 1000, 0, 0d, "\uD83D\uDC1B");
     }
 }

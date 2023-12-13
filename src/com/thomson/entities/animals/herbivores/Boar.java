@@ -11,6 +11,6 @@ public class Boar extends Herbivores {
 
     @Override
     public Animal reproduce() {
-        return new Boar(400d, 50, 2, 50d, "\\uD83D\\uDC17");
+        return new Boar(400d, 50, 2, 50d, "\uD83D\uDC17");
     }
 }

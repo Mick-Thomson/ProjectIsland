@@ -11,6 +11,6 @@ public class Bear extends Predator {
 
     @Override
     public Animal reproduce() {
-        return new Bear(500d, 5, 2, 80d, "\\uD83D\\uDC3B");
+        return new Bear(500d, 5, 2, 80d, "\uD83D\uDC3B");
     }
 }

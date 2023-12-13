@@ -11,6 +11,6 @@ public class Deer extends Herbivores {
 
     @Override
     public Animal reproduce() {
-        return new Deer(300d, 20, 4, 50d, "\\uD83E\\uDD8C");
+        return new Deer(300d, 20, 4, 50d, "\uD83E\uDD8C");
     }
 }

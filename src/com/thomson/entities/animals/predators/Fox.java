@@ -11,6 +11,6 @@ public class Fox extends Predator {
 
     @Override
     public Animal reproduce() {
-        return new Fox(8d, 30, 2, 2d, "\\uD83E\\uDD8A");
+        return new Fox(8d, 30, 2, 2d, "\uD83E\uDD8A");
     }
 }

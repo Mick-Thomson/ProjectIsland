@@ -11,6 +11,6 @@ public class Eagle extends Predator {
 
     @Override
     public Animal reproduce() {
-        return new Eagle(6d, 20, 3, 1d, "\\uD83E\\uDD85");
+        return new Eagle(6d, 20, 3, 1d, "\uD83E\uDD85");
     }
 }

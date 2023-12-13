@@ -11,6 +11,6 @@ public class Duck extends Herbivores {
 
     @Override
     public Animal reproduce() {
-        return new Duck(1d, 200, 4, 0.15, "\\uD83E\\uDD86");
+        return new Duck(1d, 200, 4, 0.15, "\uD83E\uDD86");
     }
 }

@@ -76,7 +76,8 @@ public class SimulationStarter {
                     }
 
                 }
-                islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
+                System.out.println("-------------------------------------------------------------------");
+//                islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
             }
 
         }

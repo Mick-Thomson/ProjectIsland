@@ -11,6 +11,6 @@ public class Horse extends Herbivores {
 
     @Override
     public Animal reproduce() {
-        return new Horse(400d, 20, 4, 60d, "\\uD83D\\uDC0E");
+        return new Horse(400d, 20, 4, 60d, "\uD83D\uDC0E");
     }
 }

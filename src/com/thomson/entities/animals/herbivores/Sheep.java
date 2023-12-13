@@ -11,6 +11,6 @@ public class Sheep extends Herbivores {
 
     @Override
     public Animal reproduce() {
-        return new Sheep(70d, 140, 3, 15d, "\\uD83D\\uDC11");
+        return new Sheep(70d, 140, 3, 15d, "\uD83D\uDC11");
     }
 }

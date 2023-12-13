@@ -11,6 +11,6 @@ public class Rabbit extends Herbivores {
 
     @Override
     public Animal reproduce() {
-        return new Rabbit(2d, 150, 2, 0.45, "\\uD83D\\uDC07");
+        return new Rabbit(2d, 150, 2, 0.45, "\uD83D\uDC07");
     }
 }

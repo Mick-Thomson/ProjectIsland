@@ -11,6 +11,6 @@ public class Boa extends Predator {
 
     @Override
     public Animal reproduce() {
-        return new Boa(50d, 30, 3, 8d, "\\uD83D\\uDC0D");
+        return new Boa(50d, 30, 3, 8d, "\uD83D\uDC0D");
     }
 }

@@ -11,6 +11,6 @@ public class Wolf extends Predator {
 
     @Override
     public Animal reproduce() {
-        return new Wolf(50d, 30, 3, 8d, "\\uD83D\\uDC3A");
+        return new Wolf(50d, 30, 3, 8d, "\uD83D\uDC3A");
     }
 }

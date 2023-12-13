@@ -11,6 +11,6 @@ public class Mouse extends Herbivores {
 
     @Override
     public Animal reproduce() {
-        return new Mouse(0.05, 500, 1, 0.01, "\\uD83D\\uDC01");
+        return new Mouse(0.05, 500, 1, 0.01, "\uD83D\uDC01");
     }
 }

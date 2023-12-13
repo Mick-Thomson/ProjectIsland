@@ -21,11 +21,11 @@ public class SimulationSettings {
     /** Ширина острова (настраиваемое значение) */
     private int widthMap = 100;
     /** Максимальное количество животных в локации (настраиваемое значение) */
-    private int maxAnimalCount = 100;
+//    private int maxAnimalCount = 100;
     /** Максимальное количество животных в одной клетке (настраиваемое значение) */
-    private int maxEntityCountOnLocation = 10; // TODO Максимальное возможное количество животных в одной клетке
+    private int maxEntityCountOnLocation = 25; // TODO Максимальное возможное количество животных в одной клетке
     /** Максимальное количество растений в одной клетке (настраиваемое значение) */
-    private int maxPlantCountOnLocation = 1;
+    private int maxPlantCountOnLocation = 25;
     /** Параметр увеличения здоровья, % (настраиваемое значение) */
     private int increaseHealthScale = 30;
     /** Параметр уменьшения здоровья каждый такт, % (настраиваемое значение) */

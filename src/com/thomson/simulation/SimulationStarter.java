@@ -67,8 +67,11 @@ public class SimulationStarter {
                         Action action = animal.chooseAction();
                         doAction(action, animal, location);
                     }
+
                 }
+                islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
             }
+
         }
     }
 
@@ -82,11 +85,13 @@ public class SimulationStarter {
         System.out.println("Животное: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " выполняет действие - " + action);
         switch (action) {
             case MOVE -> doMove(animal, location);
-//            case EAT -> doEat(animal, location);
+            case EAT -> doEat(animal, location);
             case REPRODUCE -> doReproduce(animal, location);
             case SLEEP -> doSleep(animal);
         }
-//        reduceHealth(animal);
+        System.out.print("Уровень здоровья животного " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " - " + animal.getHealthScale() + " | ");
+        reduceHealth(animal);
+        System.out.println(animal.getHealthScale());
     }
 
     /**
@@ -116,16 +121,39 @@ public class SimulationStarter {
      * @param location текущая локация
      */
     private void doEat(Animal animal, Location location) {
-        List<Entity> entities = location.getEntities();
-        List<Entity> foodEntities = entities.stream()
-                .filter(foodEntity -> foodEntity.getClass().getSimpleName().equals(animal.getClass().getSimpleName()))
-                .toList();
-        if (foodEntities.size() > 0) {
-            Entity foodEntity = foodEntities.get(ThreadLocalRandom.current().nextInt(foodEntities.size()));
-
+        List<Entity> entities = location.getEntities(); // Получаем список животных из локации, на которых находится животное которое ест
+        System.out.println(entities);
+        List<Entity> foodEntities;
+        // Проверка на принодлежность к травоядным
+        if (animal.getClass().getSuperclass().getSimpleName().equals("Herbivores")) {
+            System.out.println(animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " - является травоядным");
+            foodEntities = entities.stream()
+                    .filter(foodEntity -> foodEntity.getClass().getSimpleName().equals("Grass"))    // Отфильтровываем животных, оставляем только траву если есть
+                    .toList();
+            System.out.println("Это может съесть травоядное: " + foodEntities);
+        } else {
+            System.out.println(animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " - является хищником");
+            foodEntities = entities.stream()
+                    .filter(foodEntity -> !foodEntity.getClass().getSimpleName().equals(animal.getClass().getSimpleName())) // Отфильтровываем животных, которые являются одного вида с животным, которое ест
+                    .filter(foodEntity -> !foodEntity.getClass().getSimpleName().equals("Grass"))
+                    .toList();
+            System.out.println("Это может съесть хищник: " + foodEntities);
+        }
+        if (!foodEntities.isEmpty()) {  // Если отфильтрованный список не пуст
+            Entity foodEntity;// То возвращаем рандомное животное, которое можно съесть
+            if (animal.getClass().getSuperclass().getSimpleName().equals("Herbivores")) {
+                foodEntity = foodEntities.get(ThreadLocalRandom.current().nextInt(foodEntities.size())); // 0
+                System.out.println(animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " собирается съесть - " + foodEntity.getClass().getSimpleName() + ": " + foodEntity.getUnicode());
+            } else {
+                foodEntity = foodEntities.get(ThreadLocalRandom.current().nextInt(foodEntities.size()));
+                System.out.println(animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " собирается съесть - " + foodEntity.getClass().getSimpleName() + ": " + foodEntity.getUnicode());
+            }
             if (isEaten(animal, foodEntity)) {
                 animal.eat(foodEntity);
+                System.out.println(animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " съедает - " + foodEntity.getClass().getSimpleName() + ": " + foodEntity.getUnicode() + " - эта сущность удаляется с локации");
                 location.removeEntity(foodEntity);
+            } else {
+                System.out.println("Животному " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " не удалось съесть животное " + foodEntity.getClass().getSimpleName() + ": " + foodEntity.getUnicode());
             }
         }
     }
@@ -137,24 +165,27 @@ public class SimulationStarter {
      */
     private void doReproduce(Animal animal, Location location) {
         String animalsAsString = animal.getClass().getSimpleName();
-        if (location.getEntitiesCount().get(animalsAsString) >= animal.getMaxOnCage()) {
-            System.out.println("Новое живетное не появилось");
-            return;
-        }
-
-        List<Animal> animals = location.getAnimals();
-        List<Animal> sameAnimalType = animals.stream()
-                .filter(animalType -> animalType.getClass().getSimpleName().equals(animal.getClass().getSimpleName()))
-                .toList();
-        System.out.println("Животных " + animalsAsString + " в локации - " + sameAnimalType.size());
-        if (sameAnimalType.size() > 1) {
-            Animal newAnimal = animal.reproduce();
-            location.addEntity(newAnimal);
-            System.out.println("На локации появилось новое животное: " + animalsAsString + " " + animal.getUnicode());
+        if (location.getEntitiesCount().get(animalsAsString) == null) {
+            System.out.println("Новое животное не появилось");
         } else {
-            System.out.println("Новое живетное не появилось");
-        }
+            if (location.getEntitiesCount().get(animalsAsString) >= animal.getMaxOnCage()) {
+                System.out.println("Новое живетное не появилось");
+                return;
+            }
 
+            List<Animal> animals = location.getAnimals();
+            List<Animal> sameAnimalType = animals.stream()
+                    .filter(animalType -> animalType.getClass().getSimpleName().equals(animal.getClass().getSimpleName()))
+                    .toList();
+            System.out.println("Животных " + animalsAsString + " в локации - " + sameAnimalType.size());
+            if (sameAnimalType.size() > 1) {
+                Animal newAnimal = animal.reproduce();
+                location.addEntity(newAnimal);
+                System.out.println("На локации появилось новое животное: " + animalsAsString + " " + animal.getUnicode());
+            } else {
+                System.out.println("Новое живетное не появилось");
+            }
+        }
     }
 
     /**
@@ -175,6 +206,7 @@ public class SimulationStarter {
      */
     private boolean isEaten(Animal hungryAnimal, Entity foodEntity) {
         int probabilityOfEating = getEatableChanceIndex(hungryAnimal, foodEntity);
+        System.out.println("Вероятность поедания - " + probabilityOfEating);
         return ThreadLocalRandom.current().nextInt(100) < probabilityOfEating;    // TODO MAX_EATABLE_INDEX расхардкодить
     }
 
@@ -193,10 +225,10 @@ public class SimulationStarter {
      * Метод уменьшает уровень здоровья животного на N процентов
      * @param animal животное, у которого уменьшается уровень здоровья
      */
-//    private void reduceHealth(Animal animal) {
-//        double healthScale = animal.getHealthScale() - ((animal.getEnoughAmountOfFood() * simulationSettings.getReduceHealthPercent()) / 100);
-//        animal.setHealthScale(healthScale);
-//    }
+    private void reduceHealth(Animal animal) {
+        double healthScale = animal.getHealthScale() - ((animal.getEnoughAmountOfFood() * simulationSettings.getReduceHealthPercent()) / 100);
+        animal.setHealthScale(healthScale);
+    }
 
     /**
      * Метод увеличивает уровень здоровья животного на N процентов
@@ -217,17 +249,6 @@ public class SimulationStarter {
     private boolean isDead(Animal animal) {
         return animal.getHealthScale() <= 0;
     }
-
-
-
-
-
-
-
-
-
-
-
 
     // TODO ДЛЯ МНОГОПОТОЧКИ
     private void stopSimulation() {

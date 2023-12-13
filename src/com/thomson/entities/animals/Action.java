@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Action {
     MOVE(90),
-//    EAT(100),
+    EAT(100),
     REPRODUCE(50),
     SLEEP(100);
 

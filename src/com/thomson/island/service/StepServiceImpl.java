@@ -12,75 +12,75 @@ public class StepServiceImpl implements StepService {
      * @return возвращает новую локацию или прежнюю, если животное не могло двигаться
      */
     public Location stepDown(Animal animal, Location currentlocation, IslandMap islandMap) {
-        System.out.println("Хочет пойти вниз");
+//        System.out.println("Хочет пойти вниз");
         int currentX = currentlocation.getCoordinateX();
         int currentY = currentlocation.getCoordinateY();
         if (currentY < islandMap.getHeight() - 1) {
             Location newLocation = islandMap.getLocations()[currentY + 1][currentX];
             if (cantStep(animal, newLocation)) {
-                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
+//                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
                 return currentlocation;
             }
             newLocation.addEntity(animal);
             currentlocation.removeEntity(animal);
-            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось вниз");
+//            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось вниз");
             return newLocation;
         }
-        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
+//        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
         return currentlocation;
     }
     public Location stepUp(Animal animal, Location currentlocation, IslandMap islandMap) {
-        System.out.println("Хочет пойти вверх");
+//        System.out.println("Хочет пойти вверх");
         int currentX = currentlocation.getCoordinateX();
         int currentY = currentlocation.getCoordinateY();
         if (currentY > 0) {
             Location newLocation = islandMap.getLocations()[currentY - 1][currentX];
             if (cantStep(animal, newLocation)) {
-                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
+//                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
                 return currentlocation;
             }
             newLocation.addEntity(animal);
             currentlocation.removeEntity(animal);
-            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось вверх");
+//            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось вверх");
             return newLocation;
         }
-        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
+//        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
         return currentlocation;
     }
     public Location stepLeft(Animal animal, Location currentlocation, IslandMap islandMap) {
-        System.out.println("Хочет пойти влево");
+//        System.out.println("Хочет пойти влево");
         int currentX = currentlocation.getCoordinateX();
         int currentY = currentlocation.getCoordinateY();
         if (currentX > 0) {
             Location newLocation = islandMap.getLocations()[currentY][currentX - 1];
             if (cantStep(animal, newLocation)) {
-                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
+//                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
                 return currentlocation;
             }
             newLocation.addEntity(animal);
             currentlocation.removeEntity(animal);
-            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось влево");
+//            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось влево");
             return newLocation;
         }
-        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
+//        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
         return currentlocation;
     }
     public Location stepRight(Animal animal, Location currentlocation, IslandMap islandMap) {
-        System.out.println("Хочет пойти вправо");
+//        System.out.println("Хочет пойти вправо");
         int currentX = currentlocation.getCoordinateX();
         int currentY = currentlocation.getCoordinateY();
         if (currentX < islandMap.getWidth() - 1) {
             Location newLocation = islandMap.getLocations()[currentY][currentX + 1];
             if (cantStep(animal, newLocation)) {
-                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
+//                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
                 return currentlocation;
             }
             newLocation.addEntity(animal);
             currentlocation.removeEntity(animal);
-            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось вправо");
+//            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось вправо");
             return newLocation;
         }
-        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
+//        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
         return currentlocation;
     }
 

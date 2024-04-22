@@ -14,11 +14,15 @@ import java.util.concurrent.ThreadLocalRandom;
 @Getter
 @Setter
 public class IslandMap {
+    /** Фабрика сущностей */
     private final EntityFactory entityFactory;
-
+    /** Высота карты */
     private final int height; // 100
+    /** Ширина карты */
     private final int width;  // 20
+    /** Карта острова в виде двумерного массива локаций */
     private final Location[][] locations;
+
 
     @SneakyThrows
     public IslandMap(int height, int width) {
@@ -26,11 +30,12 @@ public class IslandMap {
         this.width = width;
         this.entityFactory = new EntityFactory();
         this.locations = new Location[height][width];
+        /**  */
         entityFactory.initEntitiesMap();
     }
 
     /**
-     * Метод инициализации карты пустыми локациями
+     * Метод инициализирует карту пустыми локациями
      */
     public void initialize() {
         for (int coordinateY = 0; coordinateY < height; coordinateY++) {
@@ -47,15 +52,20 @@ public class IslandMap {
 //        }
     }
 
-    public void fill(int maxEntityCount) {
+    /**
+     * Метод заполняет локацию животными
+     *
+     * @param maxEntityCount максимальное количество животных в локации
+     * @return
+     */
+    public void fillAnimals(int maxEntityCount) {
         for (int coordinateY = 0; coordinateY < height; coordinateY++) {
             for (int coordinateX = 0; coordinateX < width; coordinateX++) {
                 for (int i = 0; i < maxEntityCount; i++) {
                     Entity entity = getRandomEntity();
 //                    System.out.println("Рандомное  животное: " + entity.getClass().getSimpleName() + " - " + entity);
-
-                    var entityAsString = entity.getClass().getSimpleName();
-                    var entityCountOnLocation = locations[coordinateY][coordinateX].getEntitiesCount().getOrDefault(entityAsString, 0);
+                    String entityAsString = entity.getClass().getSimpleName();
+                    Integer entityCountOnLocation = locations[coordinateY][coordinateX].getEntitiesCount().getOrDefault(entityAsString, 0);
                     if (entityCountOnLocation >= entity.getMaxOnCage()) {
                         continue;
                     }
@@ -65,15 +75,17 @@ public class IslandMap {
         }
     }
 
+    /**
+     * Метод заполняет локацию травой
+     */
     public void fillPlants(int maxEntityCount) {
         for (int coordinateY = 0; coordinateY < height; coordinateY++) {
             for (int coordinateX = 0; coordinateX < width; coordinateX++) {
                 for (int i = 0; i < maxEntityCount; i++) {
                     Entity entity = getPlant();
 //                    System.out.println("Трава: " + entity.getClass().getSimpleName() + " - " + entity);
-
-                    var entityAsString = entity.getClass().getSimpleName();
-                    var entityCountOnLocation = locations[coordinateY][coordinateX].getEntitiesCount().getOrDefault(entityAsString, 0);
+                    String entityAsString = entity.getClass().getSimpleName();
+                    Integer entityCountOnLocation = locations[coordinateY][coordinateX].getEntitiesCount().getOrDefault(entityAsString, 0); // узнать больше про работу метода getOrDefault()
                     if (entityCountOnLocation >= entity.getMaxOnCage()) {
                         continue;
                     }
@@ -85,7 +97,10 @@ public class IslandMap {
                 }
             }
         }
+//        System.out.println("Arrays.toString(locations) = " + Arrays.deepToString(locations));
     }
+
+
 
 //    public void createPlantGrow() {
 //            int coordinateY = ThreadLocalRandom.current().nextInt(getHeight());
@@ -94,20 +109,41 @@ public class IslandMap {
 //            location.addEntity(entityFactory.createEntity(EntityType.PLANT));
 //    }
 
+    /**
+     * Метод возвращает рандомно животное
+     */
     private Entity getRandomEntity() {
         EntityType[] entityTypes = EntityType.values();
-//        System.out.println(Arrays.toString(entityTypes));
+//        System.out.println("entityTypes = " + Arrays.toString(entityTypes));
         EntityType entityType = entityTypes[ThreadLocalRandom.current().nextInt(entityTypes.length - 1)];
 //        System.out.println("Выбрано рандомная сущность: " + entityType);
         return entityFactory.createEntity(entityType);
     }
 
+    /**
+     * Метод возвращает траву
+     */
     private Entity getPlant() {
         EntityType[] entityTypes = EntityType.values();
-//        System.out.println(Arrays.toString(entityTypes));
+//        System.out.println("entityTypes = " + Arrays.toString(entityTypes));
         EntityType entityType = entityTypes[entityTypes.length - 1];
-//        System.out.println("Выбрана рандомная сущность: " + entityType);
+//        System.out.println("Выбрана трава: " + entityType);
         return entityFactory.createEntity(entityType);
     }
+
+    /**
+     * Метод создает задание роста растения в радномной локации
+     * @return возвращает задание роста растения в радномной локации
+     */
+    public Runnable createPlantGrowTask(){
+        return () -> {
+            int coordinateX = ThreadLocalRandom.current().nextInt(getWidth());
+            int coordinateY = ThreadLocalRandom.current().nextInt(getHeight());
+            Location location = locations[coordinateY][coordinateX];
+            location.addEntity(entityFactory.createEntity(EntityType.GRASS));
+        };
+    }
+
+
 
 }

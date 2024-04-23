@@ -17,15 +17,15 @@ public class SimulationSettings {
     /** Максимальная ширина карты острова */
     public static final int MAX_LIMIT_WIDTH_MAP = 200;
     /** Высота острова (настраиваемое значение) */
-    private int heightMap = 20;
+    private int heightMap = 3; // 20
     /** Ширина острова (настраиваемое значение) */
-    private int widthMap = 100;
+    private int widthMap = 3; // 100
     /** Максимальное количество животных в локации (настраиваемое значение) */
 //    private int maxAnimalCount = 100;
     /** Максимальное количество животных в одной клетке (настраиваемое значение) */
-    private int maxEntityCountOnLocation = 50; // Максимальное возможное количество животных в одной клетке
+    private int maxEntityCountOnLocation = 5; // Максимальное возможное количество животных в одной клетке
     /** Максимальное количество растений в одной клетке (настраиваемое значение) */
-    private int maxPlantCountOnLocation = 25;
+    private int maxPlantCountOnLocation = 10;
     /** Параметр увеличения здоровья, % (настраиваемое значение) */
     private int increaseHealthScale = 30;
     /** Параметр уменьшения здоровья каждый такт, % (настраиваемое значение) */
@@ -37,7 +37,7 @@ public class SimulationSettings {
     /** Параметр частоты вывода статистики в консоль, мс */
     private int statPeriod = 100;
     /** Количество циклов симуляции (настраиваемое значение) */
-    private int simulationCycles = 20;
+    private int simulationCycles = 5;
 
     public static final String ENTER_WIDTH_MAP = "Ширина острова по-умолчанию";
 

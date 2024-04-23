@@ -1,109 +1,217 @@
 package com.thomson.simulation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.thomson.dialog.UserDialog;
 import com.thomson.entities.Entity;
 import com.thomson.entities.animals.Action;
 import com.thomson.entities.animals.Animal;
 import com.thomson.entities.animals.Direction;
-import com.thomson.entities.animals.EatingMap;
 import com.thomson.island.IslandController;
 import com.thomson.island.IslandMap;
+import com.thomson.island.IslandStatistics;
 import com.thomson.island.Location;
 import com.thomson.island.service.StepService;
 import com.thomson.island.service.StepServiceImpl;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Класс обеспечивает запуск симуляции в разных потоках
+ */
 public class SimulationStarter {
+    /** Поле номер текущего такта жизненного цикла острова */
+    public static final AtomicInteger TACT_NUMBER = new AtomicInteger(0);
+
+    private static final int DAY_COUNT = 1;
+
+    /** Поле запуск заданий активности животных */
+    public static ExecutorService executorService; // newFixedThreadPool
+    /** Поле запуск заданий роста травы по расписанию */
+    public static ScheduledExecutorService scheduledExecutorService;
+    /** Поле сервис исполнения заданий по каждой локации острова */
+    private static ExecutorService locationRunExecutor; //TODO Для многопоточки //newWorkStealingPool
+    /** Поле статистика по острову */
+    private final IslandStatistics islandStatistics;
     private final UserDialog userDialog;
     private final StepService stepServiceImpl;
     private final SimulationSettings simulationSettings;
     private final IslandMap islandMap;
     private final IslandController islandController;
 
-
+    /**
+     * Конструктор класса, инициализирует поле настроек симуляции, поле диалога с пользователем,
+     * поле карты острова, поле управления островом, поле запуска заданий по расписанию
+     */
     public SimulationStarter() {
         this.stepServiceImpl = new StepServiceImpl();
         this.simulationSettings = new SimulationSettings();
         this.userDialog = new UserDialog(simulationSettings);
         this.islandMap = new IslandMap(simulationSettings.getHeightMap(), simulationSettings.getWidthMap());
         this.islandController = new IslandController(islandMap, simulationSettings);  // Проверить второй параметр eatingMap
+        this.islandStatistics = new IslandStatistics(islandMap);
+
+        executorService = Executors.newFixedThreadPool(3); // Вынести в константу SimulationSettings.INITIAL_CORE_POOL_SIZE
+        locationRunExecutor = Executors.newWorkStealingPool();
+        scheduledExecutorService = Executors.newScheduledThreadPool(3); // Вынести в константу SimulationSettings.INITIAL_CORE_POOL_SIZE
     }
 
-    public void start() {
+    /**
+     * Метод стартует основные процессы для запуска симуляции:
+     * инициализация карты, ее заполнение, запуск заданий в потоках
+     */
+    public void start() throws InterruptedException {
+        // Инициализируем локации (работает)
         islandController.getMap().initialize();
-        islandController.getMap().fill(simulationSettings.getMaxEntityCountOnLocation());
+        // Заполняем локации животными (работает)
+        islandController.getMap().fillAnimals(simulationSettings.getMaxEntityCountOnLocation());
+        // Первоначальное заполнение локаций травой (работает, но требует настройки)
         islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
-        // Цикл 100 ходов по умолчанию
+//        Thread.sleep(1000);
+        // Прорастание травы в течении жизни острова (работает, но требует настройки)
+        scheduledExecutorService.scheduleWithFixedDelay(islandController.getMap().germinationGrassTask(),
+                100, // Вынести в константу SimulationSettings.INITIAL_DELAY_PLANT_GROW_MILLIS = 1000
+                100, // Вынести в константу SimulationSettings. ... plantGrowTime = 100
+                TimeUnit.MILLISECONDS);
+
+        int dayCount = 1;
+        // Цикл 10 дней по умолчанию
         for (int i = 0; i < simulationSettings.getSimulationCycles(); i++) {
-            // Прикрутить статистику на каждый день
+            System.out.println("День: " + dayCount);
+            dayCount++;
+//            // Прорастание травы без многопоточки
+//            islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
 
-            // Здоровье начинает уменьшаться перед наступлением следующего дня
-            islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
-            if (i != 0) {
-                deteriorationOfHealth();
+            // Активность животных
+            executorService.submit(createLifeCycleTask()); // newFixedThreadPool
+            Thread.sleep(1000);
+
+
+
+//            if (i != 0) {
+//                // Здоровье начинает уменьшаться перед наступлением следующего дня
+//                deteriorationOfHealth();
+//            }
+
+//            for (int coordinateY = 0; coordinateY < islandMap.getHeight(); coordinateY++) {
+//                for (int coordinateX = 0; coordinateX < islandMap.getWidth(); coordinateX++) {
+//                    Location location = islandMap.getLocations()[coordinateY][coordinateX];
+//
+//                    System.out.println("День: " + i + " Локация [" + coordinateY + "]" + "[" + coordinateX + "]");
+//
+//                    List<Animal> animals = new ArrayList<>(location.getAnimals());
+//
+//                    List<String> animalsAsString = animals.stream()
+//                            .map(el -> el.getClass().getSimpleName())
+//                            .toList();
+//                    System.out.println("Животные в локации:" + animalsAsString);
+//
+//                    for (Animal animal : animals) {     // Цикл по животным на локации
+////                        System.out.print("Выбранное животное: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " ");
+//                        if (isDead(animal)) {
+////                            System.out.println("Мертво");
+//                            location.removeEntity(animal);
+//                            continue;
+//                        }
+//                        Action action = animal.chooseAction();
+//                        doAction(action, animal, location);
+//                    }
+//                }
+//                System.out.println("-------------------------------------------------------------------");
+////                islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
+//            }
+
+
+            // Статистика по острову
+            islandStatistics.dailyStatistics();
+            // Остановка симуляции
+            if (dayCount > simulationSettings.getSimulationCycles()) {
+                stopSimulation();
             }
-
-            for (int coordinateY = 0; coordinateY < islandMap.getHeight(); coordinateY++) {
-                for (int coordinateX = 0; coordinateX < islandMap.getWidth(); coordinateX++) {
-                    Location location = islandMap.getLocations()[coordinateY][coordinateX];
-
-                    System.out.println("День: " + i + " Локация [" + coordinateY + "]" + "[" + coordinateX + "]");
-
-                    List<Animal> animals = new ArrayList<>(location.getAnimals());
-
-                    List<String> animalsAsString = animals.stream()
-                            .map(el -> el.getClass().getSimpleName())
-                            .toList();
-                    System.out.println("Животные в локации:" + animalsAsString);
-
-                    for (Animal animal : animals) {     // Цикл по животным на локации
-                        System.out.print("Выбранное животное: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " ");
-                        if (isDead(animal)) {
-                            System.out.println("Мертво");
-                            location.removeEntity(animal);
-                            continue;
-                        }
-                        Action action = animal.chooseAction();
-                        doAction(action, animal, location);
-                    }
-
-                }
-                System.out.println("-------------------------------------------------------------------");
-//                islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
-            }
-
         }
     }
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Метод создает задание для запуска жизненного цикла острова.
+     * Запускает внутри себя задание по каждой локации острова
+     *
+     * @return возвращает задание для запуска жизненного цикла острова
+     */
+    public Runnable createLifeCycleTask() {
+        return () -> {
+            for (int coordinateY = 0; coordinateY < islandMap.getHeight(); coordinateY++) {
+                for (int coordinateX = 0; coordinateX < islandMap.getWidth(); coordinateX++) {
+                    Location location = islandMap.getLocations()[coordinateY][coordinateX];
+                    locationRunExecutor.submit(createLocationTask(location));
+                }
+            }
+//            int currentTact = TACT_NUMBER.getAndIncrement();
+//                if (isEndLifeCycle(currentTact)) {
+//                stopSimulation();
+//            }
+        };
+    }
+
+    /**
+     * Метод создает задание для выполнения действий сущностями в каждой локации
+     *
+     * @param location отдельная локация карты острова
+     * @return возвращает задание для выполнения действий сущностями в каждой локации
+     */
+    private Runnable createLocationTask(Location location) {
+        return () -> {
+            List<Animal> animals = new CopyOnWriteArrayList<>(location.getAnimals());
+
+//            List<String> animalsAsString = animals.stream()
+//                    .map(el -> el.getClass().getSimpleName())
+//                    .toList();
+//            System.out.println("Животные в локации:" + animalsAsString);
+
+            for (Animal animal : animals) {
+                if (isDead(animal)) {
+                    location.removeEntity(animal);
+                    continue;
+                }
+                Action action = animal.chooseAction();
+                doAction(action, animal, location);
+            }
+        };
+    }
+
+    // TODO ДЛЯ МНОГОПОТОЧКИ
+    private void stopSimulation() {
+        executorService.shutdown(); // newFixedThreadPool
+        scheduledExecutorService.shutdown();
+//        System.out.println(executorService.isShutdown());
+    }
+
+    //----------------------------------------------------------------------------------------------------------------------
     private void deteriorationOfHealth() {
         for (int coordinateY = 0; coordinateY < islandMap.getHeight(); coordinateY++) {
             for (int coordinateX = 0; coordinateX < islandMap.getWidth(); coordinateX++) {
                 Location location = islandMap.getLocations()[coordinateY][coordinateX];
                 List<Animal> animals = new ArrayList<>(location.getAnimals());
 
-                List<String> animalsAsString = animals.stream()
-                        .map(el -> el.getClass().getSimpleName())
-                        .toList();
-                System.out.println("Животные в локации:" + animalsAsString);
+//                List<String> animalsAsString = animals.stream()
+//                        .map(el -> el.getClass().getSimpleName())
+//                        .toList();
+//                System.out.println("Животные в локации:" + animalsAsString);
 
                 for (Animal animal : animals) {     // Цикл по животным на локации
-                    System.out.print("Выбранное животное: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " ");
+//                    System.out.print("Выбранное животное: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " ");
                     if (isDead(animal)) {
-                        System.out.println("Мертво");
+//                        System.out.println("Мертво");
                         location.removeEntity(animal);
                         continue;
                     }
-                    double previousHealthScale = animal.getHealthScale();
+//                    double previousHealthScale = animal.getHealthScale();
                     reduceHealth(animal);
-                    System.out.println("Уровень жизни животного: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " изменился с " + previousHealthScale + " на " + animal.getHealthScale());
+//                    System.out.println("Уровень жизни животного: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " изменился с " + previousHealthScale + " на " + animal.getHealthScale());
                 }
             }
         }
@@ -111,12 +219,13 @@ public class SimulationStarter {
 
     /**
      * ... Метод выполняет одно из действий для животного с последующим изменением уровня здоровья
-     * @param action ...
-     * @param animal животное, совершающее действие
+     *
+     * @param action   ...
+     * @param animal   животное, совершающее действие
      * @param location текущая локация
      */
     private void doAction(Action action, Animal animal, Location location) {
-        System.out.println("Животное: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " выполняет действие - " + action);
+//        System.out.println("Животное: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " выполняет действие - " + action);
         switch (action) {
             case MOVE -> doMove(animal, location);
             case EAT -> doEat(animal, location);
@@ -130,12 +239,13 @@ public class SimulationStarter {
 
     /**
      * Метод выполняет действие MOVE в рандомном направлении не более возможного количества шагов для каждого животного
-     * @param animal животное, которое двигается
+     *
+     * @param animal   животное, которое двигается
      * @param location текущая локация
      */
     public void doMove(Animal animal, Location location) {
         int stepCount = ThreadLocalRandom.current().nextInt(animal.getSpeed() + 1);
-        System.out.println("Количество шагов: " + stepCount);
+//        System.out.println("Количество шагов: " + stepCount);
 
         while (stepCount > 0) {
             Direction direction = animal.chooseDirection();
@@ -151,59 +261,46 @@ public class SimulationStarter {
 
     /**
      * Метод выполняет действие EAT, если есть еда
-     * @param animal животное, которое есть
+     *
+     * @param animal   животное, которое есть
      * @param location текущая локация
      */
+    //TODO Метода изменён, если нее будет работать, вернуть старый
     private void doEat(Animal animal, Location location) {
         List<Entity> entities = location.getEntities(); // Получаем список животных из локации, на которых находится животное которое ест
-        System.out.println(entities);
         List<Entity> foodEntities;
-        // Проверка на принодлежность к травоядным
-        if (animal.getClass().getSuperclass().getSimpleName().equals("Herbivores")) {
-            System.out.println(animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " - является травоядным");
+
+        if (animal.getClass().getSuperclass().getSimpleName().equals("Herbivores")) {// Проверка на принадлежность к травоядным
             foodEntities = entities.stream()
                     .filter(foodEntity -> foodEntity.getClass().getSimpleName().equals("Grass"))    // Отфильтровываем животных, оставляем только траву если есть
                     .toList();
-            System.out.println("Это может съесть травоядное: " + foodEntities);
         } else {
-            System.out.println(animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " - является хищником");
             foodEntities = entities.stream()
                     .filter(foodEntity -> !foodEntity.getClass().getSimpleName().equals(animal.getClass().getSimpleName())) // Отфильтровываем животных, которые являются одного вида с животным, которое ест
                     .filter(foodEntity -> !foodEntity.getClass().getSimpleName().equals("Grass"))
                     .toList();
-            System.out.println("Это может съесть хищник: " + foodEntities);
         }
         if (!foodEntities.isEmpty()) {  // Если отфильтрованный список не пуст
             Entity foodEntity;// То возвращаем рандомное животное, которое можно съесть
-            if (animal.getClass().getSuperclass().getSimpleName().equals("Herbivores")) {
-                foodEntity = foodEntities.get(ThreadLocalRandom.current().nextInt(foodEntities.size())); // 0
-                System.out.println(animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " собирается съесть - " + foodEntity.getClass().getSimpleName() + ": " + foodEntity.getUnicode());
-            } else {
-                foodEntity = foodEntities.get(ThreadLocalRandom.current().nextInt(foodEntities.size()));
-                System.out.println(animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " собирается съесть - " + foodEntity.getClass().getSimpleName() + ": " + foodEntity.getUnicode());
-            }
+            foodEntity = foodEntities.get(ThreadLocalRandom.current().nextInt(foodEntities.size())); // 0
             if (isEaten(animal, foodEntity)) {
                 animal.eat(foodEntity);
-                System.out.println(animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " съедает - " + foodEntity.getClass().getSimpleName() + ": " + foodEntity.getUnicode() + " - эта сущность удаляется с локации");
                 location.removeEntity(foodEntity);
-            } else {
-                System.out.println("Животному " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " не удалось съесть животное " + foodEntity.getClass().getSimpleName() + ": " + foodEntity.getUnicode());
             }
         }
     }
 
     /**
      * Метод выполняет действие REPRODUCE, если есть пара в локации
-     * @param animal животное, которое хочет размножиться
+     *
+     * @param animal   животное, которое хочет размножиться
      * @param location текущая локация
      */
+    //TODO Метода изменён, если нее будет работать, вернуть старый
     private void doReproduce(Animal animal, Location location) {
         String animalsAsString = animal.getClass().getSimpleName();
-        if (location.getEntitiesCount().get(animalsAsString) == null) {
-            System.out.println("Новое животное не появилось");
-        } else {
+        if (location.getEntitiesCount().get(animalsAsString) != null) {
             if (location.getEntitiesCount().get(animalsAsString) >= animal.getMaxOnCage()) {
-                System.out.println("Новое живетное не появилось");
                 return;
             }
 
@@ -211,43 +308,40 @@ public class SimulationStarter {
             List<Animal> sameAnimalType = animals.stream()
                     .filter(animalType -> animalType.getClass().getSimpleName().equals(animal.getClass().getSimpleName()))
                     .toList();
-            System.out.println("Животных " + animalsAsString + " в локации - " + sameAnimalType.size());
+
             if (sameAnimalType.size() > 1) {
                 Animal newAnimal = animal.reproduce();
                 location.addEntity(newAnimal);
-                System.out.println("На локации появилось новое животное: " + animalsAsString + " " + animal.getUnicode());
-            } else {
-                System.out.println("Новое живетное не появилось");
             }
         }
     }
 
     /**
      * Метод выполняет действие SLEEP и увеличивает уровень здоровья
+     *
      * @param animal животное, которе спит
      */
     private void doSleep(Animal animal) {
-        System.out.print(animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " - спит ");
         increaseHealth(animal);
-        System.out.println();
     }
 
     /**
      * Метод определяет возможность сожрать другое животное (или растение)
+     *
      * @param hungryAnimal животное, которое ест
-     * @param foodEntity животное (или растение) которое едят
+     * @param foodEntity   животное (или растение) которое едят
      * @return возвращает true, если вторую сущность съедают
      */
     private boolean isEaten(Animal hungryAnimal, Entity foodEntity) {
         int probabilityOfEating = getEatableChanceIndex(hungryAnimal, foodEntity);
-        System.out.println("Вероятность поедания - " + probabilityOfEating);
         return ThreadLocalRandom.current().nextInt(100) < probabilityOfEating;    // TODO MAX_EATABLE_INDEX расхардкодить
     }
 
     /**
      * Метод определяет значение вероятности животного съест что-то по данным из файла
+     *
      * @param hungryAnimal голодное животное
-     * @param foodEntity еда
+     * @param foodEntity   еда
      * @return возвращает значение вероятности
      */
     private Integer getEatableChanceIndex(Animal hungryAnimal, Entity foodEntity) {
@@ -257,6 +351,7 @@ public class SimulationStarter {
 
     /**
      * Метод уменьшает уровень здоровья животного на N процентов
+     *
      * @param animal животное, у которого уменьшается уровень здоровья
      */
     private void reduceHealth(Animal animal) {
@@ -266,17 +361,17 @@ public class SimulationStarter {
 
     /**
      * Метод увеличивает уровень здоровья животного на N процентов
+     *
      * @param animal животное, у которого увеличивается уровень здоровья
      */
     private void increaseHealth(Animal animal) {
-        System.out.print("Уровень жизни был " + animal.getHealthScale() + " | Стал ");
         double healthScale = animal.getHealthScale() + ((animal.getEnoughAmountOfFood() * simulationSettings.getIncreaseHealthScale()) / 100);
         animal.setHealthScale(healthScale);
-        System.out.println(healthScale);
     }
 
     /**
      * Метод проверяет достаточный ли уровень здоровья животного
+     *
      * @param animal проверяемое животное
      * @return возвращает true если животное умерло
      */
@@ -284,17 +379,15 @@ public class SimulationStarter {
         return animal.getHealthScale() <= 0;
     }
 
-    // TODO ДЛЯ МНОГОПОТОЧКИ
-    private void stopSimulation() {
 
-    }
 
     /**
      * Метод проверяет жизненный цикл на возможность завершения
+     *
      * @param currentTact номер текущего такта жизненного цикла
      * @return возвращает true, если текущий такт больше или равен максимальному
      */
     private boolean isEndLifeCycle(int currentTact) {
-        return currentTact >= simulationSettings.getMaxNumberOfTact();
+        return currentTact >= 5;// simulationSettings.getMaxNumberOfTact();
     }
 }

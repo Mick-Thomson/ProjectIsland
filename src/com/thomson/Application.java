@@ -15,5 +15,7 @@ public class Application {
 
         SimulationStarter simulation = new SimulationStarter();
         simulation.start();
+
+        System.out.println("Конец");
     }
 }

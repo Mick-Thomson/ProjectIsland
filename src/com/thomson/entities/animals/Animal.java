@@ -63,7 +63,7 @@ public abstract class Animal extends Entity {
 //                System.out.println("Слишком много еды, животное " + this.getClass().getSimpleName() + ": " + this.getUnicode() + " насытилось до максимального уровня здоровья");
                 this.setHealthScale((this.getEnoughAmountOfFood()));
             } else {
-//                System.out.println("Текущий показатель здоровья животного - " + this.getHealthScale() + " | Поссле еды - " + hungerAfterEating);
+//                System.out.println("Текущий показатель здоровья животного - " + this.getHealthScale() + " | После еды - " + hungerAfterEating);
                 this.setHealthScale(hungerAfterEating);
             }
         }

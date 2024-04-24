@@ -23,10 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SimulationStarter {
     /** Поле номер текущего такта жизненного цикла острова */
-    public static final AtomicInteger TACT_NUMBER = new AtomicInteger(0);
-
-    private static final int DAY_COUNT = 1;
-
+    public static final AtomicInteger DAY_NUMBER = new AtomicInteger(1);
     /** Поле запуск заданий активности животных */
     public static ExecutorService executorService; // newFixedThreadPool
     /** Поле запуск заданий роста травы по расписанию */
@@ -79,8 +76,7 @@ public class SimulationStarter {
         int dayCount = 1;
         // Цикл 10 дней по умолчанию
         for (int i = 0; i < simulationSettings.getSimulationCycles(); i++) {
-            System.out.println("День: " + dayCount);
-            dayCount++;
+
 //            // Прорастание травы без многопоточки
 //            islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
 
@@ -124,10 +120,14 @@ public class SimulationStarter {
 //            }
 
 
+
+//            System.out.println("День: " + dayCount);
+//            dayCount++;
             // Статистика по острову
-            islandStatistics.dailyStatistics();
+            islandStatistics.printStatistics(islandStatistics.dailyStatistics());
+//            islandStatistics.dailyStatistics();
             // Остановка симуляции
-            if (dayCount > simulationSettings.getSimulationCycles()) {
+            if (DAY_NUMBER.incrementAndGet() > simulationSettings.getSimulationCycles()) {
                 stopSimulation();
             }
         }

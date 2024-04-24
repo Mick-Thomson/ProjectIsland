@@ -16,6 +16,8 @@ public class SimulationSettings {
     public static final int MIN_LIMIT_WIDTH_MAP = 5;
     /** Максимальная ширина карты острова */
     public static final int MAX_LIMIT_WIDTH_MAP = 200;
+
+
     /** Высота острова (настраиваемое значение) */
     private int heightMap = 3; // 20
     /** Ширина острова (настраиваемое значение) */

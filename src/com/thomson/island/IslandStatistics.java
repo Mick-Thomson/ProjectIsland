@@ -57,7 +57,7 @@ public class IslandStatistics {
                 }
             }
         } else {
-            todayEntitiesStatistics.forEach((key, value) -> System.out.println(MessageFormat.format("{0}\t-\t{1}", key, value))); // Вынести в диалоговую константу EMOJI_KEY_COUNT_VALUE
+            todayEntitiesStatistics.forEach((key, value) -> System.out.println(ColorConsole.ANSI_BLUE + MessageFormat.format("{0}\t-\t{1}", key, value))); // Вынести в диалоговую константу EMOJI_KEY_COUNT_VALUE
         }
         System.out.println("\u001b[0m");
 //        System.out.println("\n");

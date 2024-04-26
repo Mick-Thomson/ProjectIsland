@@ -1,0 +1,94 @@
+wolf:
+  weight: 50
+  maxOnCage: 30
+  speed: 3
+  enoughAmountOfFood: 8
+  unicode: \uD83D\uDC3A
+boa:
+  weight: 15
+  maxOnCage: 30
+  speed: 1
+  enoughAmountOfFood: 1
+  unicode: \uD83D\uDC0D
+fox:
+  weight: 8
+  maxOnCage: 30
+  speed: 2
+  enoughAmountOfFood: 2
+  unicode: \uD83E\uDD8A
+bear:
+  weight: 500
+  maxOnCage: 5
+  speed: 2
+  enoughAmountOfFood: 80
+  unicode: \uD83D\uDC3B
+eagle:
+  weight: 6
+  maxOnCage: 20
+  speed: 3
+  enoughAmountOfFood: 1
+  unicode: \uD83E\uDD85
+horse:
+  weight: 400
+  maxOnCage: 20
+  speed: 4
+  enoughAmountOfFood: 60
+  unicode: \uD83D\uDC0E
+deer:
+  weight: 300
+  maxOnCage: 20
+  speed: 4
+  enoughAmountOfFood: 50
+  unicode: \uD83E\uDD8C
+rabbit:
+  weight: 2
+  maxOnCage: 150
+  speed: 2
+  enoughAmountOfFood: 0.45
+  unicode: \uD83D\uDC07
+mouse:
+  weight: 0.05
+  maxOnCage: 500
+  speed: 1
+  enoughAmountOfFood: 0.01
+  unicode: \uD83D\uDC01
+goat:
+  weight: 60
+  maxOnCage: 140
+  speed: 3
+  enoughAmountOfFood: 10
+  unicode: \uD83D\uDC10
+sheep:
+  weight: 70
+  maxOnCage: 140
+  speed: 3
+  enoughAmountOfFood: 15
+  unicode: \uD83D\uDC11
+boar:
+  weight: 400
+  maxOnCage: 50
+  speed: 2
+  enoughAmountOfFood: 50
+  unicode: \uD83D\uDC17
+buffalo:
+  weight: 700
+  maxOnCage: 10
+  speed: 3
+  enoughAmountOfFood: 100
+  unicode: \uD83D\uDC03
+duck:
+  weight: 1
+  maxOnCage: 200
+  speed: 4
+  enoughAmountOfFood: 0.15
+  unicode: \uD83E\uDD86
+caterpillar:
+  weight: 0.01
+  maxOnCage: 1000
+  speed: 0
+  enoughAmountOfFood: 0.0
+  unicode: \uD83D\uDC1B
+grass:
+  weight: 1
+  maxOnCage: 200
+  unicode: \uD83C\uDF3F

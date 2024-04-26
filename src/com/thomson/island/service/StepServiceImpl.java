@@ -4,84 +4,90 @@ import com.thomson.entities.animals.Animal;
 import com.thomson.island.IslandMap;
 import com.thomson.island.Location;
 
+/**
+ * Класс содержит методы перемещения животных по локациям
+ */
 public class StepServiceImpl implements StepService {
+    //TODO проверить возможность рефакторинга
     /**
-     * Метод даёт животному двигаться по карте на 1 клетку если есть возможность
+     * Метод даёт животному двигаться по карте ВНИЗ на 1 клетку если есть возможность
      * @param animal передвигаемое животное
-     * @param currentlocation текущая локация
+     * @param currentLocation текущая локация
      * @return возвращает новую локацию или прежнюю, если животное не могло двигаться
      */
-    public Location stepDown(Animal animal, Location currentlocation, IslandMap islandMap) {
-//        System.out.println("Хочет пойти вниз");
-        int currentX = currentlocation.getCoordinateX();
-        int currentY = currentlocation.getCoordinateY();
+    public Location stepDown(Animal animal, Location currentLocation, IslandMap islandMap) {
+        int currentX = currentLocation.getCoordinateX();
+        int currentY = currentLocation.getCoordinateY();
         if (currentY < islandMap.getHeight() - 1) {
             Location newLocation = islandMap.getLocations()[currentY + 1][currentX];
             if (cantStep(animal, newLocation)) {
-//                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
-                return currentlocation;
+                return currentLocation;
             }
             newLocation.addEntity(animal);
-            currentlocation.removeEntity(animal);
-//            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось вниз");
+            currentLocation.removeEntity(animal);
             return newLocation;
         }
-//        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
-        return currentlocation;
+        return currentLocation;
     }
-    public Location stepUp(Animal animal, Location currentlocation, IslandMap islandMap) {
-//        System.out.println("Хочет пойти вверх");
-        int currentX = currentlocation.getCoordinateX();
-        int currentY = currentlocation.getCoordinateY();
+    /**
+     * Метод даёт животному двигаться по карте ВВЕРХ на 1 клетку если есть возможность
+     * @param animal передвигаемое животное
+     * @param currentLocation текущая локация
+     * @return возвращает новую локацию или прежнюю, если животное не могло двигаться
+     */
+    public Location stepUp(Animal animal, Location currentLocation, IslandMap islandMap) {
+        int currentX = currentLocation.getCoordinateX();
+        int currentY = currentLocation.getCoordinateY();
         if (currentY > 0) {
             Location newLocation = islandMap.getLocations()[currentY - 1][currentX];
             if (cantStep(animal, newLocation)) {
-//                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
-                return currentlocation;
+                return currentLocation;
             }
             newLocation.addEntity(animal);
-            currentlocation.removeEntity(animal);
-//            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось вверх");
+            currentLocation.removeEntity(animal);
             return newLocation;
         }
-//        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
-        return currentlocation;
+        return currentLocation;
     }
-    public Location stepLeft(Animal animal, Location currentlocation, IslandMap islandMap) {
-//        System.out.println("Хочет пойти влево");
-        int currentX = currentlocation.getCoordinateX();
-        int currentY = currentlocation.getCoordinateY();
+    /**
+     * Метод даёт животному двигаться по карте ВЛЕВО на 1 клетку если есть возможность
+     * @param animal передвигаемое животное
+     * @param currentLocation текущая локация
+     * @return возвращает новую локацию или прежнюю, если животное не могло двигаться
+     */
+    public Location stepLeft(Animal animal, Location currentLocation, IslandMap islandMap) {
+        int currentX = currentLocation.getCoordinateX();
+        int currentY = currentLocation.getCoordinateY();
         if (currentX > 0) {
             Location newLocation = islandMap.getLocations()[currentY][currentX - 1];
             if (cantStep(animal, newLocation)) {
-//                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
-                return currentlocation;
+                return currentLocation;
             }
             newLocation.addEntity(animal);
-            currentlocation.removeEntity(animal);
-//            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось влево");
+            currentLocation.removeEntity(animal);
             return newLocation;
         }
-//        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
-        return currentlocation;
+        return currentLocation;
     }
-    public Location stepRight(Animal animal, Location currentlocation, IslandMap islandMap) {
-//        System.out.println("Хочет пойти вправо");
-        int currentX = currentlocation.getCoordinateX();
-        int currentY = currentlocation.getCoordinateY();
+    /**
+     * Метод даёт животному двигаться по карте ВПРАВО на 1 клетку если есть возможность
+     * @param animal передвигаемое животное
+     * @param currentLocation текущая локация
+     * @return возвращает новую локацию или прежнюю, если животное не могло двигаться
+     */
+    public Location stepRight(Animal animal, Location currentLocation, IslandMap islandMap) {
+        int currentX = currentLocation.getCoordinateX();
+        int currentY = currentLocation.getCoordinateY();
         if (currentX < islandMap.getWidth() - 1) {
             Location newLocation = islandMap.getLocations()[currentY][currentX + 1];
             if (cantStep(animal, newLocation)) {
-//                System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте");
-                return currentlocation;
+                return currentLocation;
             }
             newLocation.addEntity(animal);
-            currentlocation.removeEntity(animal);
-//            System.out.println("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " переместилось вправо");
+            currentLocation.removeEntity(animal);
             return newLocation;
         }
-//        System.out.println(("Животное " + animal.getClass().getSimpleName() + ": " + animal.getUnicode() + " осталось на месте, не смогло выйти за пределы острова"));
-        return currentlocation;
+        return currentLocation;
     }
 
     /**

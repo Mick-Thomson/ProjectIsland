@@ -6,14 +6,17 @@ import com.thomson.entities.EntityType;
 import com.thomson.simulation.SimulationStarter;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class IslandStatistics {
-    private static final String INCREASED = "{0}\t-\t{1}\t↑ популяция стала больше на {2}";
-    private static final String DECREASED = "{0}\t-\t{1}\t↓ популяция стала меньше на {2}";
-    private static final String NOT_CHANGED = "{0}\t-\t{1}\t- популяция не изменилась";
+    private static final String INCREASED = "{0}\t-\t{1}\t\t↑ популяция стала больше на {2}";
+    private static final String DECREASED = "{0}\t-\t{1}\t\t↓ популяция стала меньше на {2}";
+    private static final String NOT_CHANGED = "{0}\t-\t{1}\t\t- популяция не изменилась";
+    private static final String EXTINCT = "{0}\t-\t{1}\t- вымерло";
 
     /** Поле карта острова */
     private final IslandMap islandMap;
@@ -30,9 +33,9 @@ public class IslandStatistics {
      */
     public IslandStatistics(IslandMap islandMap) {
         this.islandMap = islandMap;
-        this.yesterdayEntitiesStatistics = new ConcurrentHashMap<>();
-        this.todayEntitiesStatistics = new ConcurrentHashMap<>();
-        this.entityPopulationStatistics = new ConcurrentHashMap<>();
+        this.yesterdayEntitiesStatistics = new HashMap<>();
+//        this.todayEntitiesStatistics = new HashMap<>();
+        this.entityPopulationStatistics = new HashMap<>(); // Не может быть ConcurrentHashMap так как будет хранить value = null
     }
 
     //TODO Доработать статистику
@@ -40,48 +43,55 @@ public class IslandStatistics {
      * Метод печати статистики с количеством сущностей на острове
      * @param todayEntitiesStatistics карта с эмодзи сущностей и их кол-вом на острове на конец текущего дня
      */
+
     public void printStatistics(Map<String, Integer> todayEntitiesStatistics) { //TODO Заменить на private и закинуть в Runnable для многопоточки
-//        clearConsole();
         System.out.println(ColorConsole.DOWN + MessageFormat.format("\nДень {0}-й", SimulationStarter.DAY_NUMBER.get())); // Вынести в диалоговую константу TACT_STATS
 
         if (SimulationStarter.DAY_NUMBER.get() > 1) {
-//            int result;
-            for (String entityAsImage : todayEntitiesStatistics.keySet()) {
-                int result = entityPopulationStatistics.get(entityAsImage);
-                if (result > 0) {
-                    System.out.println(ColorConsole.ANSI_GREEN + MessageFormat.format(INCREASED, entityAsImage, todayEntitiesStatistics.get(entityAsImage), result) );
-                } else if (result < 0) {
-                    System.out.println(ColorConsole.ANSI_RED + MessageFormat.format(DECREASED, entityAsImage, todayEntitiesStatistics.get(entityAsImage), Math.abs(result)));
+            for (String entityAsImage : yesterdayEntitiesStatistics.keySet()) {
+                if (entityPopulationStatistics.get(entityAsImage) == null) {
+                    System.out.println(ColorConsole.ANSI_YELLOW + MessageFormat.format(
+                            EXTINCT, entityAsImage, entityPopulationStatistics.get(entityAsImage)));
+                } else if (entityPopulationStatistics.get(entityAsImage) > 0) {
+                    System.out.println(ColorConsole.ANSI_GREEN + MessageFormat.format(
+                            INCREASED, entityAsImage, todayEntitiesStatistics.get(entityAsImage), entityPopulationStatistics.get(entityAsImage)) );
+                } else if (entityPopulationStatistics.get(entityAsImage) < 0) {
+                    System.out.println(ColorConsole.ANSI_RED + MessageFormat.format(
+                            DECREASED, entityAsImage, todayEntitiesStatistics.get(entityAsImage), Math.abs(entityPopulationStatistics.get(entityAsImage))));
                 } else {
-                    System.out.println(ColorConsole.ANSI_BLUE + MessageFormat.format(NOT_CHANGED, entityAsImage, todayEntitiesStatistics.get(entityAsImage)));
+                    System.out.println(ColorConsole.ANSI_BLUE + MessageFormat.format(
+                            NOT_CHANGED, entityAsImage, todayEntitiesStatistics.get(entityAsImage)));
                 }
             }
         } else {
             todayEntitiesStatistics.forEach((key, value) -> System.out.println(ColorConsole.ANSI_BLUE + MessageFormat.format("{0}\t-\t{1}", key, value))); // Вынести в диалоговую константу EMOJI_KEY_COUNT_VALUE
         }
         System.out.println("\u001b[0m");
-//        System.out.println("\n");
     }
 
     /**
      * Метод высчитывает изменение популяции сущностей
      * @param yesterdayEntitiesStatistics карта с эмодзи сущностей и их количеством на острове за прошлый день
-     * @param entityAsImage эмодзи сущности
      */
-    private void populationEntity(Map<String, Integer> yesterdayEntitiesStatistics, String entityAsImage) {
+    private void populationEntity(Map<String, Integer> yesterdayEntitiesStatistics) {
         int result;
-        if (yesterdayEntitiesStatistics.containsKey(entityAsImage)) {
-            result = todayEntitiesStatistics.get(entityAsImage) - yesterdayEntitiesStatistics.get(entityAsImage);
-            entityPopulationStatistics.put(entityAsImage, result);
+        Set<String> keyEntityYesterday = yesterdayEntitiesStatistics.keySet();
+        for (String key : keyEntityYesterday) {
+            // Если во сегодняшней статистике есть сущность из вчерашней статистики, то
+            if (todayEntitiesStatistics.containsKey(key)) {
+                result = todayEntitiesStatistics.get(key) - yesterdayEntitiesStatistics.get(key);
+                entityPopulationStatistics.put(key, result);
+            } else { // Если во вчерашней сущность есть, а в сегодняшней нет, то животное вымерло
+                entityPopulationStatistics.put(key, null);
+            }
         }
     }
 
     /**
      * Метод собирает статистику по количеству животных в локациях к концу каждого дня
      */
-    public Map<String, Integer> dailyStatistics() {
-//        Map<String, Integer>
-        todayEntitiesStatistics = new ConcurrentHashMap<>(); //TODO Concurrent для многопоточки
+    public void dailyStatistics() {
+        todayEntitiesStatistics = new HashMap <>(); //TODO Concurrent для многопоточки
 
         for (int y = 0; y < islandMap.getHeight(); y++) {
             for (int x = 0; x < islandMap.getWidth(); x++) {
@@ -95,21 +105,13 @@ public class IslandStatistics {
 
                     todayEntitiesStatistics.merge(entityAsImage, 1, (oldValue, newValue) -> oldValue + 1);
                 }
-                for (Entity entity : entities) {
-                    String entityAsString = entity.getClass().getSimpleName();
-                    String entityAsImage = EntityType.valueOf(entityAsString.toUpperCase()).getUnicodeSymbol();
-
-                    if(SimulationStarter.DAY_NUMBER.get() > 1) {
-                        populationEntity(yesterdayEntitiesStatistics, entityAsImage);
-                    }
-                }
             }
         }
+        if(SimulationStarter.DAY_NUMBER.get() > 1) {
+            populationEntity(yesterdayEntitiesStatistics);
+        }
+        printStatistics(todayEntitiesStatistics);
         yesterdayEntitiesStatistics = todayEntitiesStatistics;
-        return todayEntitiesStatistics;
-//        System.out.println("День: " + SimulationStarter.DAY_NUMBER);
-//        entitiesStats.forEach((key, value) -> System.out.println(MessageFormat.format("{0} - {1}", key, value) + "  -  популяция " + key.getClass().getSimpleName()));
-//        System.out.println();
     }
 
     //TODO Реализовать под многопоточку

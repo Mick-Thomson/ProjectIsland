@@ -5,8 +5,6 @@ import com.thomson.entities.animals.Animal;
 import com.thomson.entities.plants.Plant;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,7 +12,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
 public class Location {
+    /** Поле координата X локации */
     private int coordinateX;
+    /** Поле координата Y локации */
     private int coordinateY;
     /** Поле список всех сущностей локации */
     private List<Entity> entities;
@@ -23,7 +23,6 @@ public class Location {
 
     /**
      * Конструктор класса, инициализирует координаты, список сущностей локации и карту типов с их количеством
-     *
      * @param coordinateY координата y локации
      * @param coordinateX координата x локации
      */
@@ -36,7 +35,6 @@ public class Location {
 
     /**
      * Метод добавляет сущность в список
-     *
      * @param entity сущность
      */
     public void addEntity(Entity entity) {
@@ -47,17 +45,15 @@ public class Location {
     /**
      * Метод добавляет в поле тип-количество сущностей новую сущность
      * (прибавляет к количеству уже имеющихся +1)
-     *
      * @param entity сущность
      */
     private void addToStatistic(Entity entity) {
-        var entityAsString = getEntityName(entity);
+        String entityAsString = getEntityName(entity);
         entitiesCount.merge(entityAsString, 1, (oldValue, newValue) -> oldValue + 1);
     }
 
     /**
      * Метод удаляет сущность из локации
-     *
      * @param entity сущность
      */
     public void removeEntity(Entity entity) {
@@ -69,11 +65,10 @@ public class Location {
      * Метод удаляет из поля тип-количество сущностей старую сущность
      * (отнимает от количества уже имеющихся -1)
      * Проверяет, если новое количество определённой сущности <= 0, то возвращает null
-     *
      * @param entity сущность
      */
     private void removeFromStatistic(Entity entity) {
-        var entityString = getEntityName(entity);
+        String entityString = getEntityName(entity);
         entitiesCount.merge(entityString, 1, (oldValue, newValue) -> {
             int newCount = oldValue - 1;
             if (newCount <= 0) {
@@ -85,7 +80,6 @@ public class Location {
 
     /**
      * Метод отфильтровывает из списка сущностей животных
-     *
      * @return возвращает список всех животных локации
      */
     public List<Animal> getAnimals() {
@@ -97,7 +91,6 @@ public class Location {
 
     /**
      * Метод отфильтровывает из списка сущностей растения
-     *
      * @return возвращает список всех животных локации
      */
     public List<Plant> getPlants() {
@@ -106,8 +99,12 @@ public class Location {
                 .map(Plant.class::cast)
                 .toList();
     }
-//----------------------------------------------------------------------------------------------------------------------
 
+    /**
+     * Метод получает строковое значение типа класса сущности
+     * @param entity сущность
+     * @return строковое значения типа класса
+     */
     private String getEntityName(Entity entity) {
         return entity.getClass().getSimpleName();
     }

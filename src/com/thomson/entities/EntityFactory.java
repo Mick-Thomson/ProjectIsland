@@ -16,11 +16,18 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.*;
 
+/** Класс фабрика создания животных */
 public class EntityFactory {
+    /** Поле пути к корневой папке сущностей */
     public static final String CURRENT_PATH = "com.thomson.entities";
-    /** Поле каталог всех сущностей */
+    /** Поле каталог всех сущностей (экземпляры классов всех сущностей)*/
     private final Map<Class<?>, Object> entitiesMap = new HashMap<>();
 
+    /**
+     * Метод создаёт новую сущность по типу
+     * @param entityTypes передаваемый тип сущности
+     * @return новая сущность
+     */
     public Entity createEntity(EntityType entityTypes) {
         return switch (entityTypes) {
             case WOLF -> (Wolf) entitiesMap.get(Wolf.class);
@@ -65,7 +72,7 @@ public class EntityFactory {
         Properties properties = new Properties();
         try (FileReader reader = new FileReader("src/resources/animals-data.properties")) {
             properties.load(reader);
-            System.out.println("wolf.weight = " + properties.getProperty("wolf.weight"));  // Удалить
+//            System.out.println("wolf.weight = " + properties.getProperty("wolf.weight"));  // Удалить
         } catch (IOException e) {
             e.printStackTrace(System.out);
         }
@@ -77,14 +84,16 @@ public class EntityFactory {
             List<String> valuesToSearch = propertyValues.stream()                                    // 14 Создаём список значений, из которых получим значения полей сущности -> 17
                     .filter(el -> el.startsWith(entityName))                                         // 15 Фильтруем элементы те, которые начинаются с имени сущности, типа "wolf.weight"
                     .toList();  // Возвращаем списком
-            Constructor<?> constructor = aClass.getDeclaredConstructor(Double.class, Integer.class, Integer.class, Double.class, String.class); // 16 Получаем конструктор сущности с определёнными параметрами
+            Constructor<?> constructor = aClass.getDeclaredConstructor(
+                    Double.class, Integer.class, Integer.class, Double.class, String.class);         // 16 Получаем конструктор сущности с определёнными параметрами
             // Если отсортировать, то порядок будет такой: 4, 1, 2, 0, 3
             Double weight = Double.valueOf((String) properties.get(valuesToSearch.get(0)));          // 17 Получаем значения каждого поля сущности из properties (propertyValues.get(0))
             Integer maxOnCage = Integer.parseInt((String) properties.get(valuesToSearch.get(1)));
             Integer speed = Integer.parseInt((String) properties.get(valuesToSearch.get(2)));
             Double enoughAmountOfFood = Double.valueOf((String) properties.get(valuesToSearch.get(3)));
             String unicode = String.valueOf(properties.get(valuesToSearch.get(4)));
-            entitiesMap.put(aClass, constructor.newInstance(weight, maxOnCage, speed, enoughAmountOfFood, unicode)); // 17 Добавляем в Map ново созданные сущности где K(Класс сущности), а V(объект, созданный по конструктору этой сущности -> 16)
+            entitiesMap.put(aClass, constructor.newInstance(
+                    weight, maxOnCage, speed, enoughAmountOfFood, unicode)); // 18 Добавляем в Map ново созданные сущности где K(Класс сущности), а V(объект, созданный по конструктору этой сущности -> 16)
         }
     }
     /**
@@ -120,40 +129,4 @@ public class EntityFactory {
                 .filterInputsBy(new FilterBuilder().includePackage(CURRENT_PATH)));
         return reflections.getTypesAnnotatedWith(annotationClass);
     }
-
-
-
-
-
-    /*    @SneakyThrows
-    private Set<Class> findAllClassesUsingClassLoader(String packageName) {
-        Set<Class> classes = new HashSet<>();
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File packageDir = new File(packageName);
-        if (packageDir.isDirectory()) {
-            File[] files = packageDir.listFiles();
-            for (File file : files) {
-                String className = file.getName();
-                if (className.endsWith(".class")) {
-                    className = packageName + "." + className.substring(0, className.length() - 6);
-                    Class clazz = classLoader.loadClass(className);
-                    classes.add(clazz);
-                }
-                if (file.isDirectory()) {
-                    classes.addAll(findAllClassesUsingClassLoader(file.toString()));
-                }
-            }
-        }
-        return classes;
-    }*/
-
-//    private Class getClass(String className, String packageName) {
-//        try {
-//            return Class.forName(packageName + "."
-//                    + className.substring(0, className.lastIndexOf('.')));
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
 }

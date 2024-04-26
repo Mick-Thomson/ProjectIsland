@@ -7,13 +7,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Абстрактный класс для растений
+ */
 @Getter
 @Setter
-//@AllArgsConstructor
 @NoArgsConstructor
 public abstract class Plant extends Entity {
+    /** Поле вес */
     @Property(propertyName = "weight", priority = 1)
     private double weight;
+    /** Поле максимальное количество в локации */
     @Property(propertyName = "maxOnCage", priority = 2)
     private int maxOnCage;
     @Property(propertyName = "speed", priority = 3)
@@ -23,6 +27,14 @@ public abstract class Plant extends Entity {
     @Property(propertyName = "unicode", priority = 5)
     private String unicode;
 
+    /**
+     * Конструктор класса
+     * @param weight
+     * @param maxOnCage
+     * @param speed
+     * @param enoughAmountOfFood
+     * @param unicode
+     */
     protected Plant(double weight, int maxOnCage, int speed, double enoughAmountOfFood, String unicode){
         this.weight = weight;
         this.maxOnCage = maxOnCage;
@@ -31,6 +43,10 @@ public abstract class Plant extends Entity {
         this.unicode = unicode;
     }
 
+    /**
+     * Метод роста травы
+     * @return возвращает новый объект Plant
+     */
     protected abstract Plant germination();
 
     @Override
@@ -43,14 +59,4 @@ public abstract class Plant extends Entity {
                 ", unicode='" + unicode + '\'' +
                 '}';
     }
-
-    //    @Override
-//    public double getWeight() {
-//        return weight;
-//    }
-//
-//    @Override
-//    public int getMaxOnCage() {
-//        return maxOnCage;
-//    }
 }

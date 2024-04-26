@@ -12,7 +12,6 @@ import com.thomson.island.Location;
 import com.thomson.island.service.StepService;
 import com.thomson.island.service.StepServiceImpl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -29,13 +28,19 @@ public class SimulationStarter {
     /** Поле запуск заданий роста травы по расписанию */
     public static ScheduledExecutorService scheduledExecutorService;
     /** Поле сервис исполнения заданий по каждой локации острова */
-    private static ExecutorService locationRunExecutor; //TODO Для многопоточки //newWorkStealingPool
+    private static ExecutorService locationRunExecutor; // newWorkStealingPool
+    //TODO добавить многопоточку для статистики
     /** Поле статистика по острову */
     private final IslandStatistics islandStatistics;
+    /** Поле диалога пользователя */
     private final UserDialog userDialog;
+    /** Поле сервиса перемещения по локациям */
     private final StepService stepServiceImpl;
+    /** Поле настроек симуляции */
     private final SimulationSettings simulationSettings;
+    /** Поле карта острова */
     private final IslandMap islandMap;
+    /** Поле управление островом */
     private final IslandController islandController;
 
     /**
@@ -50,16 +55,16 @@ public class SimulationStarter {
         this.islandController = new IslandController(islandMap, simulationSettings);  // Проверить второй параметр eatingMap
         this.islandStatistics = new IslandStatistics(islandMap);
 
-        executorService = Executors.newFixedThreadPool(3); // Вынести в константу SimulationSettings.INITIAL_CORE_POOL_SIZE
-        locationRunExecutor = Executors.newWorkStealingPool();
-        scheduledExecutorService = Executors.newScheduledThreadPool(3); // Вынести в константу SimulationSettings.INITIAL_CORE_POOL_SIZE
+        executorService = Executors.newFixedThreadPool( SimulationSettings.CORE_POOL_SIZE);
+        locationRunExecutor = Executors.newWorkStealingPool(); //newWorkStealingPool
+        scheduledExecutorService = Executors.newScheduledThreadPool( SimulationSettings.CORE_POOL_SIZE);
     }
 
     /**
      * Метод стартует основные процессы для запуска симуляции:
      * инициализация карты, ее заполнение, запуск заданий в потоках
      */
-    public void start() throws InterruptedException {
+    public void start() {
         // Инициализируем локации (работает)
         islandController.getMap().initialize();
         // Заполняем локации животными (работает)
@@ -69,73 +74,31 @@ public class SimulationStarter {
 //        Thread.sleep(1000);
         // Прорастание травы в течении жизни острова (работает, но требует настройки)
         scheduledExecutorService.scheduleWithFixedDelay(islandController.getMap().germinationGrassTask(),
-                100, // Вынести в константу SimulationSettings.INITIAL_DELAY_PLANT_GROW_MILLIS = 1000
-                100, // Вынести в константу SimulationSettings. ... plantGrowTime = 100
+                SimulationSettings.DELAY_PLANT_GROW_MILLIS, // Вынести в константу SimulationSettings.INITIAL_DELAY_PLANT_GROW_MILLIS = 1000
+                SimulationSettings.FREQUENCY_GRASS_GERMINATION_MILLIS, // Вынести в константу SimulationSettings. ... plantGrowTime = 100
                 TimeUnit.MILLISECONDS);
 
-        int dayCount = 1;
-        // Цикл 10 дней по умолчанию
-        for (int i = 0; i < simulationSettings.getSimulationCycles(); i++) {
-
-//            // Прорастание травы без многопоточки
-//            islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
+        // Цикл 15 дней по умолчанию
+        for (int i = 0; i < simulationSettings.getSimulationDays(); i++) {
 
             // Активность животных
             executorService.submit(createLifeCycleTask()); // newFixedThreadPool
-            Thread.sleep(1000);
-
-
-
-//            if (i != 0) {
-//                // Здоровье начинает уменьшаться перед наступлением следующего дня
-//                deteriorationOfHealth();
-//            }
-
-//            for (int coordinateY = 0; coordinateY < islandMap.getHeight(); coordinateY++) {
-//                for (int coordinateX = 0; coordinateX < islandMap.getWidth(); coordinateX++) {
-//                    Location location = islandMap.getLocations()[coordinateY][coordinateX];
-//
-//                    System.out.println("День: " + i + " Локация [" + coordinateY + "]" + "[" + coordinateX + "]");
-//
-//                    List<Animal> animals = new ArrayList<>(location.getAnimals());
-//
-//                    List<String> animalsAsString = animals.stream()
-//                            .map(el -> el.getClass().getSimpleName())
-//                            .toList();
-//                    System.out.println("Животные в локации:" + animalsAsString);
-//
-//                    for (Animal animal : animals) {     // Цикл по животным на локации
-////                        System.out.print("Выбранное животное: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " ");
-//                        if (isDead(animal)) {
-////                            System.out.println("Мертво");
-//                            location.removeEntity(animal);
-//                            continue;
-//                        }
-//                        Action action = animal.chooseAction();
-//                        doAction(action, animal, location);
-//                    }
-//                }
-//                System.out.println("-------------------------------------------------------------------");
-////                islandController.getMap().fillPlants(simulationSettings.getMaxPlantCountOnLocation());
-//            }
-
-
-
-//            System.out.println("День: " + dayCount);
-//            dayCount++;
+            try {
+                Thread.sleep(SimulationSettings.LENGTH_OF_DAY_MILLIS);
+            } catch (InterruptedException e) {
+                e.printStackTrace(System.out);
+            }
             // Статистика по острову
-            islandStatistics.printStatistics(islandStatistics.dailyStatistics());
+//            islandStatistics.printStatistics(islandStatistics.dailyStatistics());
+            islandStatistics.dailyStatistics();
 //            islandStatistics.dailyStatistics();
             // Остановка симуляции
-            if (DAY_NUMBER.incrementAndGet() > simulationSettings.getSimulationCycles()) {
+            if (DAY_NUMBER.incrementAndGet() > simulationSettings.getSimulationDays()) {
                 stopSimulation();
             }
         }
     }
-
-
 //----------------------------------------------------------------------------------------------------------------------
-
     /**
      * Метод создает задание для запуска жизненного цикла острова.
      * Запускает внутри себя задание по каждой локации острова
@@ -150,10 +113,6 @@ public class SimulationStarter {
                     locationRunExecutor.submit(createLocationTask(location));
                 }
             }
-//            int currentTact = TACT_NUMBER.getAndIncrement();
-//                if (isEndLifeCycle(currentTact)) {
-//                stopSimulation();
-//            }
         };
     }
 
@@ -166,12 +125,6 @@ public class SimulationStarter {
     private Runnable createLocationTask(Location location) {
         return () -> {
             List<Animal> animals = new CopyOnWriteArrayList<>(location.getAnimals());
-
-//            List<String> animalsAsString = animals.stream()
-//                    .map(el -> el.getClass().getSimpleName())
-//                    .toList();
-//            System.out.println("Животные в локации:" + animalsAsString);
-
             for (Animal animal : animals) {
                 if (isDead(animal)) {
                     location.removeEntity(animal);
@@ -187,45 +140,17 @@ public class SimulationStarter {
     private void stopSimulation() {
         executorService.shutdown(); // newFixedThreadPool
         scheduledExecutorService.shutdown();
-//        System.out.println(executorService.isShutdown());
     }
 
     //----------------------------------------------------------------------------------------------------------------------
-    private void deteriorationOfHealth() {
-        for (int coordinateY = 0; coordinateY < islandMap.getHeight(); coordinateY++) {
-            for (int coordinateX = 0; coordinateX < islandMap.getWidth(); coordinateX++) {
-                Location location = islandMap.getLocations()[coordinateY][coordinateX];
-                List<Animal> animals = new ArrayList<>(location.getAnimals());
-
-//                List<String> animalsAsString = animals.stream()
-//                        .map(el -> el.getClass().getSimpleName())
-//                        .toList();
-//                System.out.println("Животные в локации:" + animalsAsString);
-
-                for (Animal animal : animals) {     // Цикл по животным на локации
-//                    System.out.print("Выбранное животное: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " ");
-                    if (isDead(animal)) {
-//                        System.out.println("Мертво");
-                        location.removeEntity(animal);
-                        continue;
-                    }
-//                    double previousHealthScale = animal.getHealthScale();
-                    reduceHealth(animal);
-//                    System.out.println("Уровень жизни животного: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " изменился с " + previousHealthScale + " на " + animal.getHealthScale());
-                }
-            }
-        }
-    }
-
     /**
-     * ... Метод выполняет одно из действий для животного с последующим изменением уровня здоровья
+     * Метод выполняет одно из действий для животного с последующим изменением уровня здоровья
      *
-     * @param action   ...
-     * @param animal   животное, совершающее действие
+     * @param action выбранное действие
+     * @param animal животное, совершающее действие
      * @param location текущая локация
      */
     private void doAction(Action action, Animal animal, Location location) {
-//        System.out.println("Животное: " + animal.getClass().getSimpleName() + " " + animal.getUnicode() + " выполняет действие - " + action);
         switch (action) {
             case MOVE -> doMove(animal, location);
             case EAT -> doEat(animal, location);
@@ -245,7 +170,6 @@ public class SimulationStarter {
      */
     public void doMove(Animal animal, Location location) {
         int stepCount = ThreadLocalRandom.current().nextInt(animal.getSpeed() + 1);
-//        System.out.println("Количество шагов: " + stepCount);
 
         while (stepCount > 0) {
             Direction direction = animal.chooseDirection();
@@ -379,15 +303,5 @@ public class SimulationStarter {
         return animal.getHealthScale() <= 0;
     }
 
-
-
-    /**
-     * Метод проверяет жизненный цикл на возможность завершения
-     *
-     * @param currentTact номер текущего такта жизненного цикла
-     * @return возвращает true, если текущий такт больше или равен максимальному
-     */
-    private boolean isEndLifeCycle(int currentTact) {
-        return currentTact >= 5;// simulationSettings.getMaxNumberOfTact();
-    }
+    // Для ScheduledExecutorService нужен метод проверки на возможность завершения жизненного цикла isEndLifeCycle
 }

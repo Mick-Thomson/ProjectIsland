@@ -1,9 +1,9 @@
 package com.thomson.entities.animals;
 
-import com.thomson.island.Location;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/** Перечисление действий животного */
 @Getter
 @AllArgsConstructor
 public enum Action {
@@ -12,6 +12,6 @@ public enum Action {
     REPRODUCE(50),
     SLEEP(100);
 
+    /** Поле шанса на действие */
     private final int actionChanceIndex;
-
 }

@@ -86,7 +86,7 @@ caterpillar:
   weight: 0.01
   maxOnCage: 1000
   speed: 0
-  enoughAmountOfFood: 0
+  enoughAmountOfFood: 0.0
   unicode: \uD83D\uDC1B
 grass:
   weight: 1

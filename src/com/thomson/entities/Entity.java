@@ -9,5 +9,4 @@ public abstract class Entity {
     private double weight;
     private int maxOnCage;
     private String unicode;
-
 }

@@ -1,7 +1,6 @@
 package com.thomson.entities.plants.grass;
 
 import com.thomson.annotations.Entity;
-import com.thomson.entities.plants.Plant;
 
 @Entity(className = "grass")
 public class Grass extends LandPlants {

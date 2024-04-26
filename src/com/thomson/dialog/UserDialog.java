@@ -5,70 +5,59 @@ import com.thomson.simulation.SimulationSettings;
 import java.text.MessageFormat;
 import java.util.Scanner;
 
-import static com.thomson.simulation.SimulationSettings.*;
+import static com.thomson.dialog.DialogText.*;
 
 public class UserDialog {
-    private static final String START_DEFAULT_SETTINGS = "Стартовать с настройками по-умолчанию?\nЕсли Да - введите \"1\" \nЕсли Нет - введите \"0\"";
-    private final SimulationSettings simulationSettings;
+    /** Поле настроек симуляции */
+    private SimulationSettings simulationSettings;
 
+    /**
+     * Конструктор класса для выбора параметров и запуска симуляции
+     * @param simulationSettings настройки симуляции
+     */
     public UserDialog(SimulationSettings simulationSettings) {
         this.simulationSettings = simulationSettings;
 
-//        try (Scanner scan = new Scanner(System.in)) {
-//            System.out.println();
-//            System.out.println();
-//            System.out.println();
-//
-//            boolean isDefaultRunFlag = initDefaultRunFlag(scan);
-//            if (!isDefaultRunFlag) {
-//                System.out.println();   // ISLAND_MAP
-//
-////                simulationSettings.setHeightMap(initHeightMap(scan));
-//                simulationSettings.setWidthMap(initWidthMap(scan));
-//            }
-//        }
-
-
-
         try (Scanner scanner = new Scanner(System.in)) {
-            System.out.println("Симулятор острова");
-            System.out.println("Текущие настройки: ");
-//            System.out.println("Height = " + simulationSettings.getHeightMap());
-//            System.out.println("Width = " + simulationSettings.getWidthMap());
-            // TODO: добавить возможность изменения параметров
+
+            System.out.println(GREETING);
+            System.out.println(DIFFICULTY_LEVEL);
+            System.out.print(CHOOSING_DIFFICULTY_LEVEL);
+            int difficultLevel = scanner.nextInt();
+            System.out.println();
+
+            if (difficultLevel == 1) {
+                System.out.println(TO_THE_DEATH + "\n");
+                System.out.print("Задайте ширину острова: ");
+                simulationSettings.setWidthMap(scanner.nextInt()); //
+                System.out.print("Задайте высоту острова: ");
+                simulationSettings.setHeightMap(scanner.nextInt()); //
+                System.out.print("Задайте максимальное количество животных на локации: ");
+                simulationSettings.setMaxEntityCountOnLocation(scanner.nextInt()); //
+//                System.out.print("Задайте уменьшение здоровья у животных за один день (в процентах): \n");
+//                simulationSettings.setReduceHealthPercent(scanner.nextInt());
+                System.out.print("Задайте максимальное количество растительности на локации: ");
+                simulationSettings.setMaxPlantCountOnLocation(scanner.nextInt()); //
+                System.out.print("Установите количество безрадостных дней: ");
+                simulationSettings.setSimulationDays(scanner.nextInt()); //
+            } else {
+                System.out.println(EASY_WALK);
+            }
+            printSettings();
         }
     }
 
-//    private int initWidthMap(Scanner scan) {
-//        int width = simulationSettings.getWidthMap();
-//
-//        while (true) {
-//            System.out.println(MessageFormat.format(ENTER_WIDTH_MAP, simulationSettings.getWidthMap(), MIN_LIMIT_WIDTH_MAP, MAX_LIMIT_WIDTH_MAP));
-//
-//            String widthAsString = scan.nextLine();
-//            if (widthAsString.equals("")) {
-//                return width;
-//            }
-//
-//        }
-//    }
+    /**
+     * Метод печатает выбранные пользователем параметры
+     */
+    private void printSettings(){
+        System.out.println(STARTUP_SETTINGS);
 
-//    private boolean initDefaultRunFlag(Scanner scan) {
-//        while (true) {
-//            System.out.println(START_DEFAULT_SETTINGS);
-//
-//            String defaultStart = scan.nextLine();
-//            if (defaultStart.equals("")) {
-//                return true;
-//            }
-//            int def = Integer.parseInt(defaultStart);
-//            if (def == 1) {
-//                return true;
-//            } else if (def == 0) {
-//                return false;
-//            } else {
-//                System.out.println("Дан неверный ответ");
-//            }
-//        }
-//    }
+        System.out.println("----------------------------------");
+        System.out.println(MessageFormat.format(SIZE_MAP, simulationSettings.getWidthMap(), simulationSettings.getHeightMap()));
+        System.out.println(MessageFormat.format(ANIMAL_COUNT_ON_LOCATION, simulationSettings.getMaxEntityCountOnLocation()));
+        System.out.println(MessageFormat.format(PLANT_COUNT_ON_LOCATION, simulationSettings.getMaxPlantCountOnLocation()));
+        System.out.println(MessageFormat.format(DAY_COUNT, simulationSettings.getSimulationDays()));
+        System.out.println("----------------------------------");
+    }
 }

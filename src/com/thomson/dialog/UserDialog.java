@@ -44,6 +44,7 @@ public class UserDialog {
                 System.out.println(EASY_WALK);
             }
             printSettings();
+            startSim(scanner);
         }
     }
 
@@ -59,5 +60,17 @@ public class UserDialog {
         System.out.println(MessageFormat.format(PLANT_COUNT_ON_LOCATION, simulationSettings.getMaxPlantCountOnLocation()));
         System.out.println(MessageFormat.format(DAY_COUNT, simulationSettings.getSimulationDays()));
         System.out.println("----------------------------------");
+    }
+
+    /**
+     * Метод предлагает пользователя запустить симуляцию
+     * @param scanner объект сканера для считывания данных
+     */
+    private void startSim(Scanner scanner){
+        System.out.println("Надеюсь ты хорошо подумал");
+        while (!scanner.nextLine().equals("С богом")) {
+            System.out.println("Для старта симуляции напиши \"С Богом\"");
+        }
+        System.out.println();
     }
 }

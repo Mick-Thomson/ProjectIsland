@@ -68,7 +68,7 @@ public class UserDialog {
      */
     private void startSim(Scanner scanner){
         System.out.println("Надеюсь ты хорошо подумал");
-        while (!scanner.nextLine().equals("С богом")) {
+        while (!scanner.nextLine().equals("С Богом")) {
             System.out.println("Для старта симуляции напиши \"С Богом\"");
         }
         System.out.println();
